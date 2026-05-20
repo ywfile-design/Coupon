@@ -90,9 +90,9 @@
       couponStatusSearchType: 'userId',
       couponStatusSearchKeyword: '',
       coupons: [
-        { id: 1, date: '2024-05-15', name: '신규회원 환영 쿠폰', description: '신규 가입 회원을 위한 특별 할인 쿠폰입니다', type: '할인금액', value: 10000, validFrom: '2024-05-15', validTo: '2024-12-31', validDays: 30, target: '공개', status: 'active' },
-        { id: 2, date: '2024-05-16', name: '봄맞이 특별할인', description: '봄 시즌 한정 특별 할인 혜택', type: '할인율', value: 15, validFrom: '2024-05-16', validTo: '2024-06-30', validDays: 45, target: '지정회원', status: 'active' },
-        { id: 3, date: '2024-05-17', name: 'VIP 전용 쿠폰', description: 'VIP 회원님께만 제공되는 특별 쿠폰', type: '할인금액', value: 50000, validFrom: '2024-05-17', validTo: '2024-12-31', validDays: 90, target: '지정회원', status: 'active' }
+        { id: 1, date: '2024-05-15', name: '신규회원 환영 쿠폰', description: '신규 가입 회원을 위한 특별 할인 쿠폰입니다', type: '할인금액', value: 10000, issueFrom: '2024-05-15', issueTo: '2024-12-31', validFrom: '2024-05-15', validTo: '2024-12-31', validDays: 30, target: '공개', status: 'active' },
+        { id: 2, date: '2024-05-16', name: '봄맞이 특별할인', description: '봄 시즌 한정 특별 할인 혜택', type: '할인율', value: 15, issueFrom: '2024-05-16', issueTo: '2024-06-30', validFrom: '2024-05-16', validTo: '2024-06-30', validDays: 45, target: '지정회원', status: 'active' },
+        { id: 3, date: '2024-05-17', name: 'VIP 전용 쿠폰', description: 'VIP 회원님께만 제공되는 특별 쿠폰', type: '할인금액', value: 50000, issueFrom: '2024-05-17', issueTo: '2024-12-31', validFrom: '2024-05-17', validTo: '2024-12-31', validDays: 90, target: '지정회원', status: 'active' }
       ],
       myCoupons: [
         { id: 1, name: '신규회원 환영 쿠폰', type: '할인금액', value: 10000, validTo: '2024-12-31', status: '미사용' },
@@ -236,20 +236,30 @@
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">쿠폰명</th>
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">할인유형</th>
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">할인값</th>
+                  <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">이벤트기간</th>
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">유효기간</th>
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">발행대상</th>
                   <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">관리</th>
                 </tr>
               </thead>
               <tbody>
-                ${filtered.map((c, i) => `
+                ${filtered.map((c, i) => {
+                  const today = new Date().toISOString().split('T')[0];
+                  const isIssuable = today >= c.issueFrom && today <= c.issueTo;
+                  return `
                   <tr style="border-top: 1px solid #F3F4F6;">
                     <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${i + 1}</td>
                     <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${c.date}</td>
                     <td style="padding: 16px 14px; font-size: 14px; font-weight: 500; color: #1F2937;">${c.name}</td>
                     <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${c.type}</td>
                     <td style="padding: 16px 14px; font-size: 14px; font-weight: 600; color: #1F2937;">${c.type === '할인금액' ? c.value.toLocaleString() + '원' : c.value + '%'}</td>
-                    <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${c.validFrom} ~ ${c.validTo}</td>
+                    <td style="padding: 16px 14px; font-size: 13px; color: #6B7280;">
+                      <div style="margin-bottom: 4px;">${c.issueFrom} ~ ${c.issueTo}</div>
+                      <span style="padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; background-color: ${isIssuable ? '#DCFCE7' : '#FEE2E2'}; color: ${isIssuable ? '#166534' : '#991B1B'};">
+                        ${isIssuable ? '발급가능' : '발급불가'}
+                      </span>
+                    </td>
+                    <td style="padding: 16px 14px; font-size: 13px; color: #6B7280;">${c.validDays}일</td>
                     <td style="padding: 16px 14px;">
                       <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background-color: ${c.target === '공개' ? '#DBEAFE' : '#FEF3C7'}; color: ${c.target === '공개' ? '#1E40AF' : '#92400E'};">${c.target}</span>
@@ -265,7 +275,7 @@
                       <button onclick="deleteCoupon(${c.id})" style="padding: 6px 12px; background: #FFF; border: 1px solid #FCA5A5; border-radius: 6px; font-size: 13px; cursor: pointer; color: #DC2626;">삭제</button>
                     </td>
                   </tr>
-                `).join('')}
+                `}).join('')}
               </tbody>
             </table>
           </div>
@@ -639,7 +649,17 @@
     // 쿠폰 모달
     function openCouponModal(coupon = null) {
       const isEdit = coupon !== null;
-      const data = coupon || { name: '', description: '', type: '할인금액', value: '', validDays: 30, target: '공개' };
+      const today = new Date().toISOString().split('T')[0];
+      const data = coupon || { 
+        name: '', 
+        description: '', 
+        type: '할인금액', 
+        value: '', 
+        issueFrom: today,
+        issueTo: '',
+        validDays: 30, 
+        target: '공개' 
+      };
 
       document.getElementById('modal-content').innerHTML = `
         <div style="padding: 24px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between;">
@@ -668,14 +688,28 @@
               <input type="number" id="value" value="${data.value}" required style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
             </div>
           </div>
+          <div style="margin-bottom: 20px; padding: 16px; background-color: #FEF3C7; border-radius: 10px; border: 1px solid #FCD34D;">
+            <label style="display: block; font-size: 14px; font-weight: 600; color: #92400E; margin-bottom: 8px;">📅 쿠폰 이벤트 기간 (발급 가능 기간)</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px;">
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #92400E; margin-bottom: 6px;">시작일</label>
+                <input type="date" id="issueFrom" value="${data.issueFrom || today}" required style="width: 100%; padding: 10px 14px; border: 1px solid #FCD34D; border-radius: 8px; font-size: 14px; background: #FFF;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #92400E; margin-bottom: 6px;">종료일</label>
+                <input type="date" id="issueTo" value="${data.issueTo || ''}" required style="width: 100%; padding: 10px 14px; border: 1px solid #FCD34D; border-radius: 8px; font-size: 14px; background: #FFF;">
+              </div>
+            </div>
+            <p style="font-size: 12px; color: #92400E; margin: 0;">⚠️ 이 기간 동안만 쿠폰을 회원에게 발급할 수 있습니다. 기간이 지나면 발급이 자동 중단됩니다.</p>
+          </div>
           <div style="margin-bottom: 20px;">
-            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">유효기간</label>
+            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">쿠폰 유효기간 (발급 후 사용 가능 기간)</label>
             <div style="display: flex; align-items: center; gap: 12px;">
               <span style="font-size: 14px; color: #6B7280; white-space: nowrap;">발급일로부터</span>
               <input type="number" id="validDays" value="${data.validDays || 30}" min="1" required style="flex: 1; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
               <span style="font-size: 14px; color: #6B7280; white-space: nowrap;">일</span>
             </div>
-            <p style="font-size: 12px; color: #9CA3AF; margin-top: 6px;">예: 30일 입력 시 발급일로부터 30일간 유효</p>
+            <p style="font-size: 12px; color: #9CA3AF; margin-top: 6px;">예: 30일 입력 시 발급일로부터 30일간 사용 가능</p>
           </div>
           <div style="margin-bottom: 20px;">
             <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">발행대상</label>
@@ -701,11 +735,27 @@
       validToDate.setDate(validToDate.getDate() + validDays);
       const validTo = validToDate.toISOString().split('T')[0];
 
+      const issueFrom = document.getElementById('issueFrom').value;
+      const issueTo = document.getElementById('issueTo').value;
+
+      // 이벤트 기간 유효성 검사
+      if (!issueFrom || !issueTo) {
+        alert('쿠폰 이벤트 기간을 입력해주세요.');
+        return;
+      }
+
+      if (new Date(issueFrom) > new Date(issueTo)) {
+        alert('이벤트 종료일은 시작일보다 이후여야 합니다.');
+        return;
+      }
+
       const data = { 
         name: document.getElementById('name').value, 
         description: document.getElementById('description').value,
         type: document.getElementById('type').value, 
         value: parseFloat(document.getElementById('value').value), 
+        issueFrom: issueFrom,
+        issueTo: issueTo,
         validFrom: validFrom,
         validTo: validTo,
         validDays: validDays,
@@ -971,6 +1021,14 @@
       }
 
       const coupon = state.coupons.find(c => c.id === state.selectedCouponForMembers);
+      
+      // 이벤트 기간 체크
+      const today = new Date().toISOString().split('T')[0];
+      if (today < coupon.issueFrom || today > coupon.issueTo) {
+        alert(`⚠️ 쿠폰 발급이 불가능합니다.\n\n이벤트 기간: ${coupon.issueFrom} ~ ${coupon.issueTo}\n현재 날짜: ${today}\n\n이벤트 기간 내에만 쿠폰을 발급할 수 있습니다.`);
+        return;
+      }
+
       const newAssignments = selectedIds.map(memberId => {
         const member = state.members.find(m => m.id === memberId);
         return {
@@ -1017,6 +1075,15 @@
         return;
       }
 
+      const coupon = state.coupons.find(c => c.id === state.selectedCouponForMembers);
+      
+      // 이벤트 기간 체크
+      const today = new Date().toISOString().split('T')[0];
+      if (today < coupon.issueFrom || today > coupon.issueTo) {
+        alert(`⚠️ 쿠폰 발급이 불가능합니다.\n\n이벤트 기간: ${coupon.issueFrom} ~ ${coupon.issueTo}\n현재 날짜: ${today}\n\n이벤트 기간 내에만 쿠폰을 발급할 수 있습니다.`);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
@@ -1053,7 +1120,6 @@
           }
 
           // 쿠폰 발급
-          const coupon = state.coupons.find(c => c.id === state.selectedCouponForMembers);
           const newAssignments = matched.map(member => ({
             ...member,
             couponId: state.selectedCouponForMembers,
