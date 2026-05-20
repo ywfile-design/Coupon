@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쿠폰관리시스템</title>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Pretendard, -apple-system, BlinkMacSystemFont, sans-serif; background-color: #F8FAFC; min-height: 100vh; }
+    .hidden { display: none !important; }
+    .role-btn { padding: 8px 16px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; background-color: #FFF; color: #374151; transition: all 0.2s; }
+    .role-btn.active { background-color: #2563EB; color: #FFF; }
+    .menu-btn { width: 100%; padding: 12px 16px; background-color: transparent; border: none; border-left: 3px solid transparent; text-align: left; font-size: 15px; font-weight: 500; cursor: pointer; color: #6B7280; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+    .menu-btn span { font-size: 18px; }
+    .menu-btn.active { background-color: #EEF4FF; color: #2563EB; border-left: 3px solid #2563EB; }
+    #modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    #modal-content { background-color: #FFF; border-radius: 16px; width: 100%; max-width: 900px; max-height: 90vh; overflow: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); }
+    .view-btn { padding: 10px 16px; background-color: #FFF; border: 1px solid #D1D5DB; border-radius: 8px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    .view-btn.active { background-color: #EEF4FF; border-color: #2563EB; color: #2563EB; }
+    .tab-btn { padding: 12px 24px; background-color: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-size: 15px; font-weight: 500; color: #6B7280; transition: all 0.2s; }
+    .tab-btn.active { color: #2563EB; border-bottom-color: #2563EB; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div style="background-color: #FFF; border-bottom: 1px solid #E5E7EB; padding: 16px 24px; position: sticky; top: 0; z-index: 100;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 28px;">🎁</span>
+          <h1 style="font-size: 20px; font-weight: 600; color: #1F2937;">쿠폰관리시스템</h1>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button id="btn-admin" class="role-btn active">관리자</button>
+          <button id="btn-learner" class="role-btn">학습자</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; min-height: calc(100vh - 73px);">
+      <div id="sidebar" style="width: 240px; background-color: #FFF; border-right: 1px solid #E5E7EB; padding: 24px 0;">
+        <div id="admin-menu">
+          <p style="font-size: 12px; font-weight: 600; color: #9CA3AF; padding: 0 16px; margin-bottom: 8px;">관리자 메뉴</p>
+          
+          <div>
+            <button id="coupon-menu-toggle" style="width: 100%; padding: 12px 16px; background-color: transparent; border: none; text-align: left; font-size: 15px; font-weight: 600; cursor: pointer; color: #374151; display: flex; align-items: center; justify-content: space-between; transition: all 0.2s;">
+              <span style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 18px;">🎁</span>쿠폰 관리
+              </span>
+              <span id="coupon-menu-arrow" style="font-size: 12px; transition: transform 0.2s;">▼</span>
+            </button>
+            <div id="coupon-submenu" style="overflow: hidden; transition: max-height 0.3s ease;">
+              <button class="menu-btn active" data-menu="coupon-create" style="padding: 12px 16px 12px 48px; font-size: 15px;">
+                <span>➕</span>쿠폰생성
+              </button>
+              <button class="menu-btn" data-menu="coupon-status" style="padding: 12px 16px 12px 48px; font-size: 15px;">
+                <span>📋</span>쿠폰현황
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="learner-menu" class="hidden">
+          <p style="font-size: 12px; font-weight: 600; color: #9CA3AF; padding: 0 16px; margin-bottom: 8px;">학습자 메뉴</p>
+          <button class="menu-btn" data-menu="my-coupons"><span>🎁</span>내 쿠폰함</button>
+          <button class="menu-btn" data-menu="payment"><span>🛒</span>결제하기</button>
+        </div>
+      </div>
+
+      <div id="content" style="flex: 1; padding: 32px;">
+        <div id="page-coupon-create"></div>
+        <div id="page-coupon-status" class="hidden"></div>
+        <div id="page-my-coupons" class="hidden"></div>
+        <div id="page-payment" class="hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-overlay" class="hidden"><div id="modal-content"></div></div>
+
+  <script>
+    const state = {
+      activeRole: 'admin',
+      activeMenu: 'coupon-create',
+      couponSearch: '',
+      couponView: 'list',
+      selectedPaymentCoupon: '',
+      productPrice: 150000,
+      couponStatusTab: 'public',
+      couponStatusSearchType: 'userId',
+      couponStatusSearchKeyword: '',
+      coupons: [
+        { id: 1, date: '2024-05-15', name: '신규회원 환영 쿠폰', description: '신규 가입 회원을 위한 특별 할인 쿠폰입니다', type: '할인금액', value: 10000, validFrom: '2024-05-15', validTo: '2024-12-31', validDays: 30, target: '공개', status: 'active' },
+        { id: 2, date: '2024-05-16', name: '봄맞이 특별할인', description: '봄 시즌 한정 특별 할인 혜택', type: '할인율', value: 15, validFrom: '2024-05-16', validTo: '2024-06-30', validDays: 45, target: '지정회원', status: 'active' },
+        { id: 3, date: '2024-05-17', name: 'VIP 전용 쿠폰', description: 'VIP 회원님께만 제공되는 특별 쿠폰', type: '할인금액', value: 50000, validFrom: '2024-05-17', validTo: '2024-12-31', validDays: 90, target: '지정회원', status: 'active' }
+      ],
+      myCoupons: [
+        { id: 1, name: '신규회원 환영 쿠폰', type: '할인금액', value: 10000, validTo: '2024-12-31', status: '미사용' },
+        { id: 2, name: '봄맞이 특별할인', type: '할인율', value: 15, validTo: '2024-06-30', status: '미사용' },
+        { id: 3, name: 'VIP 전용 쿠폰', type: '할인금액', value: 50000, validTo: '2024-12-31', status: '사용완료', usedDate: '2024-05-10' }
+      ],
+      members: [
+        { id: 1, memberId: 'user001', name: '김철수', group: 'VIP', status: '미사용' },
+        { id: 2, memberId: 'user002', name: '이영희', group: '일반', status: '미사용' },
+        { id: 3, memberId: 'user003', name: '박민수', group: 'VIP', status: '미사용' },
+        { id: 4, memberId: 'user004', name: '최지은', group: '일반', status: '미사용' },
+        { id: 5, memberId: 'user005', name: '정대호', group: 'VIP', status: '미사용' }
+      ],
+      assignedMembers: [],
+      memberSearchType: 'memberId',
+      memberSearchKeyword: '',
+      memberSearchGroup: '',
+      selectedCouponForMembers: null,
+      memberModalTab: 'add',
+      couponMenuExpanded: true,
+      targetOptions: [
+        { id: 1, name: '공개', description: '모든 회원에게 공개' },
+        { id: 2, name: '지정회원', description: '특정 회원만 사용 가능' }
+      ],
+      issuedCoupons: [
+        { id: 1, userId: 'user001', userName: '김철수', userGroup: 'VIP', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '미사용', issuedDate: '2024-05-15' },
+        { id: 2, userId: 'user002', userName: '이영희', userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-15', usedDate: '2024-05-20' },
+        { id: 3, userId: 'user003', userName: '박민수', userGroup: 'VIP', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '미사용', issuedDate: '2024-05-15' },
+        { id: 4, userId: 'user001', userName: '김철수', userGroup: 'VIP', couponName: 'VIP 전용 쿠폰', couponType: '지정회원', validTo: '2024-12-31', status: '미사용', issuedDate: '2024-05-17' },
+        { id: 5, userId: 'user003', userName: '박민수', userGroup: 'VIP', couponName: 'VIP 전용 쿠폰', couponType: '지정회원', validTo: '2024-12-31', status: '미사용', issuedDate: '2024-05-17' },
+        { id: 6, userId: 'user002', userName: '이영희', userGroup: '일반', couponName: '봄맞이 특별할인', couponType: '지정회원', validTo: '2024-06-30', status: '사용완료', issuedDate: '2024-05-16', usedDate: '2024-05-25' },
+        { id: 7, userId: 'user004', userName: '최지은', userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '미사용', issuedDate: '2024-05-18' },
+        { id: 8, userId: 'user005', userName: '정대호', userGroup: 'VIP', couponName: 'VIP 전용 쿠폰', couponType: '지정회원', validTo: '2024-12-31', status: '미사용', issuedDate: '2024-05-17' },
+        { id: 9, userId: 'user004', userName: '최지은', userGroup: '일반', couponName: '봄맞이 특별할인', couponType: '지정회원', validTo: '2024-06-30', status: '미사용', issuedDate: '2024-05-19' }
+      ]
+    };
+
+    // 유효기간 계산
+    function calculateDaysRemaining(validTo) {
+      const today = new Date();
+      const expiry = new Date(validTo);
+      const diffTime = expiry - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 0) return '만료';
+      if (diffDays === 0) return '오늘만료';
+      return `${diffDays}일 남음`;
+    }
+
+    // 역할 전환
+    document.getElementById('btn-admin').onclick = () => { state.activeRole = 'admin'; state.activeMenu = 'coupon-create'; updateUI(); };
+    document.getElementById('btn-learner').onclick = () => { state.activeRole = 'learner'; state.activeMenu = 'my-coupons'; updateUI(); };
+
+    function updateUI() {
+      document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${state.activeRole}`).classList.add('active');
+      document.getElementById('admin-menu').classList.toggle('hidden', state.activeRole !== 'admin');
+      document.getElementById('learner-menu').classList.toggle('hidden', state.activeRole !== 'learner');
+      renderPage(state.activeMenu);
+    }
+
+    // 메뉴 클릭
+    document.querySelectorAll('.menu-btn').forEach(btn => {
+      btn.onclick = () => {
+        state.activeMenu = btn.dataset.menu;
+        document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderPage(state.activeMenu);
+      };
+    });
+
+    // 쿠폰 관리 메뉴 토글
+    document.getElementById('coupon-menu-toggle').onclick = () => {
+      state.couponMenuExpanded = !state.couponMenuExpanded;
+      updateCouponMenuState();
+    };
+
+    function updateCouponMenuState() {
+      const submenu = document.getElementById('coupon-submenu');
+      const arrow = document.getElementById('coupon-menu-arrow');
+      
+      if (state.couponMenuExpanded) {
+        submenu.style.maxHeight = submenu.scrollHeight + 'px';
+        arrow.style.transform = 'rotate(0deg)';
+        arrow.textContent = '▼';
+      } else {
+        submenu.style.maxHeight = '0';
+        arrow.style.transform = 'rotate(-90deg)';
+        arrow.textContent = '▶';
+      }
+    }
+
+    // 초기 상태 설정
+    updateCouponMenuState();
+
+    // 페이지 렌더링
+    function renderPage(page) {
+      document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+      const pageEl = document.getElementById(`page-${page}`);
+      if (pageEl) {
+        pageEl.classList.remove('hidden');
+        switch(page) {
+          case 'coupon-create': renderCouponCreate(); break;
+          case 'coupon-status': renderCouponStatus(); break;
+          case 'my-coupons': renderMyCoupons(); break;
+          case 'payment': renderPayment(); break;
+        }
+      }
+    }
+
+    // 대시보드
+    // 쿠폰생성 (기존 쿠폰 관리)
+    function renderCouponCreate() {
+      const filtered = state.coupons.filter(c => c.name.toLowerCase().includes(state.couponSearch.toLowerCase()));
+      
+      let html = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+          <h2 style="font-size: 28px; font-weight: 600; color: #1F2937;">쿠폰생성</h2>
+          <button onclick="openCouponModal()" style="padding: 12px 20px; background-color: #2563EB; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; color: #FFF;">➕ 쿠폰 생성</button>
+        </div>
+        <div style="background-color: #FFF; padding: 24px; border-radius: 16px; border: 1px solid #E5E7EB; margin-bottom: 20px;">
+          <div style="display: flex; gap: 16px; align-items: center;">
+            <input type="text" id="coupon-search" placeholder="쿠폰명으로 검색" value="${state.couponSearch}" style="flex: 1; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
+            <button onclick="performCouponSearch()" style="padding: 10px 24px; background-color: #2563EB; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; color: #FFF; white-space: nowrap;">
+              🔍 검색하기
+            </button>
+            <button class="view-btn ${state.couponView === 'list' ? 'active' : ''}" onclick="state.couponView='list'; renderCouponCreate();">📋 리스트</button>
+            <button class="view-btn ${state.couponView === 'grid' ? 'active' : ''}" onclick="state.couponView='grid'; renderCouponCreate();">⊞ 카드</button>
+          </div>
+        </div>
+      `;
+
+      if (state.couponView === 'list') {
+        html += `
+          <div style="background-color: #FFF; border-radius: 16px; border: 1px solid #E5E7EB; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background-color: #F8FAFC;">
+                  <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">NO</th>
+                  <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">등록일</th>
+                  <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">쿠폰명</th>
+                  <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">할인유형</th>
+                  <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">할인값</th>
+                  <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">유효기간</th>
+                  <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">발행대상</th>
+                  <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">관리</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filtered.map((c, i) => `
+                  <tr style="border-top: 1px solid #F3F4F6;">
+                    <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${i + 1}</td>
+                    <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${c.date}</td>
+                    <td style="padding: 16px 14px; font-size: 14px; font-weight: 500; color: #1F2937;">${c.name}</td>
+                    <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${c.type}</td>
+                    <td style="padding: 16px 14px; font-size: 14px; font-weight: 600; color: #1F2937;">${c.type === '할인금액' ? c.value.toLocaleString() + '원' : c.value + '%'}</td>
+                    <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${c.validFrom} ~ ${c.validTo}</td>
+                    <td style="padding: 16px 14px;">
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background-color: ${c.target === '공개' ? '#DBEAFE' : '#FEF3C7'}; color: ${c.target === '공개' ? '#1E40AF' : '#92400E'};">${c.target}</span>
+                        ${c.target === '지정회원' ? `
+                          <button onclick="openMemberModal(${c.id})" style="padding: 6px 12px; background: #FFF; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: #374151; display: flex; align-items: center; gap: 4px;">
+                            👥 회원추가
+                          </button>
+                        ` : ''}
+                      </div>
+                    </td>
+                    <td style="padding: 16px 14px; text-align: center;">
+                      <button onclick="editCoupon(${c.id})" style="padding: 6px 12px; background: #FFF; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 13px; cursor: pointer; margin-right: 4px;">수정</button>
+                      <button onclick="deleteCoupon(${c.id})" style="padding: 6px 12px; background: #FFF; border: 1px solid #FCA5A5; border-radius: 6px; font-size: 13px; cursor: pointer; color: #DC2626;">삭제</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else {
+        html += `
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+            ${filtered.map(c => `
+              <div style="background-color: #FFF; padding: 24px; border-radius: 16px; border: 1px solid #E5E7EB;">
+                <div style="margin-bottom: 16px;">
+                  <h3 style="font-size: 18px; font-weight: 600; color: #1F2937; margin-bottom: 8px;">${c.name}</h3>
+                  <span style="padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background-color: ${c.target === '공개' ? '#DBEAFE' : '#FEF3C7'}; color: ${c.target === '공개' ? '#1E40AF' : '#92400E'};">${c.target}</span>
+                </div>
+                <div style="margin-bottom: 16px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 14px; color: #6B7280;">할인유형</span>
+                    <span style="font-size: 14px; font-weight: 500; color: #1F2937;">${c.type}</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 14px; color: #6B7280;">할인값</span>
+                    <span style="font-size: 16px; font-weight: 600; color: #2563EB;">${c.type === '할인금액' ? c.value.toLocaleString() + '원' : c.value + '%'}</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 14px; color: #6B7280;">유효기간</span>
+                    <span style="font-size: 13px; color: #6B7280;">${c.validFrom} ~ ${c.validTo}</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between;">
+                    <span style="font-size: 14px; color: #6B7280;">등록일</span>
+                    <span style="font-size: 13px; color: #6B7280;">${c.date}</span>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  ${c.target === '지정회원' ? `
+                    <button onclick="openMemberModal(${c.id})" style="flex: 1; padding: 10px; background: #EEF4FF; border: 1px solid #2563EB; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; color: #2563EB; display: flex; align-items: center; justify-content: center; gap: 4px; min-width: 120px;">
+                      👥 회원추가
+                    </button>
+                  ` : ''}
+                  <button onclick="editCoupon(${c.id})" style="flex: 1; padding: 10px; background: #FFF; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 14px; cursor: pointer; min-width: 80px;">수정</button>
+                  <button onclick="deleteCoupon(${c.id})" style="flex: 1; padding: 10px; background: #FFF; border: 1px solid #FCA5A5; border-radius: 8px; font-size: 14px; cursor: pointer; color: #DC2626; min-width: 80px;">삭제</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      document.getElementById('page-coupon-create').innerHTML = html;
+      
+      const couponSearchInput = document.getElementById('coupon-search');
+      if (couponSearchInput) {
+        couponSearchInput.onkeypress = (e) => {
+          if (e.key === 'Enter') {
+            performCouponSearch();
+          }
+        };
+      }
+    }
+
+    function performCouponSearch() {
+      const searchValue = document.getElementById('coupon-search').value;
+      state.couponSearch = searchValue;
+      renderCouponCreate();
+    }
+
+    // 쿠폰현황
+    function renderCouponStatus() {
+      const publicCoupons = state.issuedCoupons.filter(c => c.couponType === '공개');
+      const privateCoupons = state.issuedCoupons.filter(c => c.couponType === '지정회원');
+      
+      // 검색 필터링
+      let coupons = state.couponStatusTab === 'public' ? publicCoupons : privateCoupons;
+      
+      if (state.couponStatusSearchKeyword !== '') {
+        coupons = coupons.filter(c => {
+          const keyword = state.couponStatusSearchKeyword.toLowerCase();
+          switch(state.couponStatusSearchType) {
+            case 'userId':
+              return c.userId.toLowerCase().includes(keyword);
+            case 'userName':
+              return c.userName.toLowerCase().includes(keyword);
+            case 'couponName':
+              return c.couponName.toLowerCase().includes(keyword);
+            default:
+              return true;
+          }
+        });
+      }
+
+      let html = `
+        <h2 style="font-size: 28px; font-weight: 600; color: #1F2937; margin-bottom: 24px;">쿠폰현황</h2>
+        
+        <div style="background-color: #FFF; border-radius: 16px; border: 1px solid #E5E7EB; margin-bottom: 20px;">
+          <div style="border-bottom: 1px solid #E5E7EB; padding: 0 24px; display: flex; gap: 16px;">
+            <button class="tab-btn ${state.couponStatusTab === 'public' ? 'active' : ''}" onclick="state.couponStatusTab='public'; state.couponStatusSearchKeyword=''; renderCouponStatus();">공개쿠폰 (${publicCoupons.length})</button>
+            <button class="tab-btn ${state.couponStatusTab === 'private' ? 'active' : ''}" onclick="state.couponStatusTab='private'; state.couponStatusSearchKeyword=''; renderCouponStatus();">지정회원쿠폰 (${privateCoupons.length})</button>
+          </div>
+        </div>
+
+        <div style="background-color: #FFF; padding: 24px; border-radius: 16px; border: 1px solid #E5E7EB; margin-bottom: 20px;">
+          <div style="display: flex; gap: 12px; align-items: flex-end;">
+            <div style="flex: 0 0 150px;">
+              <label style="display: block; font-size: 13px; font-weight: 500; color: #6B7280; margin-bottom: 6px;">검색 조건</label>
+              <select id="coupon-status-search-type" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; background: #FFF;">
+                <option value="userId" ${state.couponStatusSearchType === 'userId' ? 'selected' : ''}>아이디</option>
+                <option value="userName" ${state.couponStatusSearchType === 'userName' ? 'selected' : ''}>이름</option>
+                <option value="couponName" ${state.couponStatusSearchType === 'couponName' ? 'selected' : ''}>쿠폰명</option>
+              </select>
+            </div>
+            <div style="flex: 1;">
+              <label style="display: block; font-size: 13px; font-weight: 500; color: #6B7280; margin-bottom: 6px;">검색어</label>
+              <input type="text" id="coupon-status-search-keyword" placeholder="검색어를 입력하세요" value="${state.couponStatusSearchKeyword}" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
+            </div>
+            <button onclick="performCouponStatusSearch()" style="padding: 10px 24px; background-color: #2563EB; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; color: #FFF; white-space: nowrap;">
+              🔍 검색하기
+            </button>
+            ${state.couponStatusSearchKeyword !== '' ? `
+              <button onclick="resetCouponStatusSearch()" style="padding: 10px 20px; background-color: #FFF; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; color: #6B7280; white-space: nowrap;">
+                초기화
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        <div style="background-color: #FFF; border-radius: 16px; border: 1px solid #E5E7EB; overflow: hidden;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #F8FAFC;">
+                <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">NO</th>
+                <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">아이디</th>
+                <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">그룹</th>
+                <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">이름</th>
+                <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">쿠폰명</th>
+                <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">유효기간</th>
+                <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">사용여부</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${coupons.length > 0 ? coupons.map((c, i) => {
+                const daysRemaining = calculateDaysRemaining(c.validTo);
+                const isExpired = daysRemaining === '만료';
+                return `
+                  <tr style="border-top: 1px solid #F3F4F6;">
+                    <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${i + 1}</td>
+                    <td style="padding: 16px 14px; font-size: 14px; color: #374151;">${c.userId}</td>
+                    <td style="padding: 16px 14px;">
+                      <span style="padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; background-color: ${c.userGroup === 'VIP' ? '#FEF3C7' : '#DBEAFE'}; color: ${c.userGroup === 'VIP' ? '#92400E' : '#1E40AF'};">
+                        ${c.userGroup}
+                      </span>
+                    </td>
+                    <td style="padding: 16px 14px; font-size: 14px; font-weight: 500; color: #1F2937;">${c.userName}</td>
+                    <td style="padding: 16px 14px; font-size: 14px; color: #374151;">${c.couponName}</td>
+                    <td style="padding: 16px 14px;">
+                      <span style="padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background-color: ${isExpired ? '#FEE2E2' : '#DBEAFE'}; color: ${isExpired ? '#DC2626' : '#1E40AF'};">
+                        ${daysRemaining}
+                      </span>
+                    </td>
+                    <td style="padding: 16px 14px; text-align: center;">
+                      <span style="padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background-color: ${c.status === '미사용' ? '#DCFCE7' : '#F3F4F6'}; color: ${c.status === '미사용' ? '#166534' : '#6B7280'};">
+                        ${c.status}
+                      </span>
+                    </td>
+                  </tr>
+                `;
+              }).join('') : `
+                <tr>
+                  <td colspan="7" style="padding: 60px 20px; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                    <p style="font-size: 16px; color: #6B7280; margin-bottom: 8px;">검색 결과가 없습니다</p>
+                    <p style="font-size: 14px; color: #9CA3AF;">다른 검색어로 시도해보세요</p>
+                  </td>
+                </tr>
+              `}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('page-coupon-status').innerHTML = html;
+      
+      // 엔터키로 검색
+      const keywordInput = document.getElementById('coupon-status-search-keyword');
+      if (keywordInput) {
+        keywordInput.onkeypress = (e) => {
+          if (e.key === 'Enter') {
+            performCouponStatusSearch();
+          }
+        };
+      }
+    }
+
+    // 쿠폰현황 검색 실행
+    function performCouponStatusSearch() {
+      state.couponStatusSearchType = document.getElementById('coupon-status-search-type').value;
+      state.couponStatusSearchKeyword = document.getElementById('coupon-status-search-keyword').value;
+      renderCouponStatus();
+    }
+
+    // 쿠폰현황 검색 초기화
+    function resetCouponStatusSearch() {
+      state.couponStatusSearchType = 'userId';
+      state.couponStatusSearchKeyword = '';
+      renderCouponStatus();
+    }
+
+    // 이벤트 관리 (생략 - 기존 코드와 동일)
+    // 내 쿠폰함
+    function renderMyCoupons() {
+      const getStatusColor = (s) => {
+        const colors = { '미사용': { bg: '#DBEAFE', color: '#1E40AF' }, '사용완료': { bg: '#F3F4F6', color: '#6B7280' }, '만료': { bg: '#FEE2E2', color: '#DC2626' } };
+        return colors[s] || colors['미사용'];
+      };
+
+      let html = '<h2 style="font-size: 28px; font-weight: 600; color: #1F2937; margin-bottom: 24px;">내 쿠폰함</h2>';
+      html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">';
+
+      state.myCoupons.forEach(c => {
+        const statusStyle = getStatusColor(c.status);
+        
+        html += `
+          <div style="background-color: #FFF; padding: 20px; border-radius: 12px; border: 1px solid #E5E7EB; position: relative; opacity: ${c.status === '미사용' ? 1 : 0.7};">
+            <div style="position: absolute; top: 12px; right: 12px;">
+              <span style="padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; background-color: ${statusStyle.bg}; color: ${statusStyle.color};">${c.status}</span>
+            </div>
+            
+            <div style="margin-bottom: 16px; padding-right: 70px;">
+              <h3 style="font-size: 16px; font-weight: 600; color: #1F2937; margin-bottom: 6px; line-height: 1.4;">${c.name}</h3>
+            </div>
+            
+            <div style="padding: 16px; background: linear-gradient(135deg, #EEF4FF 0%, #DBEAFE 100%); border-radius: 10px; margin-bottom: 14px; text-align: center;">
+              <p style="font-size: 28px; font-weight: 700; color: #2563EB; margin: 0; line-height: 1;">
+                ${c.type === '할인금액' ? c.value.toLocaleString() + '원' : c.value + '%'}
+              </p>
+              <p style="font-size: 11px; color: #6B7280; margin-top: 4px;">${c.type}</p>
+            </div>
+            
+            <div style="font-size: 13px; color: #6B7280;">
+              <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #F3F4F6;">
+                <span>유효기간</span>
+                <span style="color: #1F2937; font-weight: 500;">${c.validTo}까지</span>
+              </div>
+              ${c.usedDate ? `
+                <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                  <span>사용일</span>
+                  <span style="color: #1F2937; font-weight: 500;">${c.usedDate}</span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      html += '</div>';
+      document.getElementById('page-my-coupons').innerHTML = html;
+    }
+
+    // 결제
+    function renderPayment() {
+      const calculateDiscount = () => {
+        if (!state.selectedPaymentCoupon) return 0;
+        const coupon = state.myCoupons.find(c => c.id === parseInt(state.selectedPaymentCoupon));
+        if (!coupon || coupon.status !== '미사용') return 0;
+        return coupon.type === '할인금액' ? Math.min(coupon.value, state.productPrice) : Math.floor(state.productPrice * (coupon.value / 100));
+      };
+
+      const discount = calculateDiscount();
+      const finalPrice = state.productPrice - discount;
+
+      document.getElementById('page-payment').innerHTML = `
+        <h2 style="font-size: 28px; font-weight: 600; color: #1F2937; margin-bottom: 24px;">결제하기</h2>
+        <div style="max-width: 600px; margin: 0 auto;">
+          <div style="background-color: #FFF; padding: 32px; border-radius: 16px; border: 1px solid #E5E7EB; margin-bottom: 20px;">
+            <h3 style="font-size: 18px; font-weight: 600; color: #1F2937; margin-bottom: 20px;">상품 정보</h3>
+            
+            <div style="padding: 20px; background-color: #F8FAFC; border-radius: 12px; margin-bottom: 24px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <p style="font-size: 16px; font-weight: 500; color: #1F2937; margin-bottom: 4px;">프리미엄 강좌 패키지</p>
+                  <p style="font-size: 14px; color: #6B7280;">3개월 수강권</p>
+                </div>
+                <p style="font-size: 20px; font-weight: 600; color: #1F2937;">${state.productPrice.toLocaleString()}원</p>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">쿠폰 선택</label>
+              <select id="payment-coupon" style="width: 100%; padding: 12px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; background-color: #FFF;">
+                <option value="">쿠폰을 선택하세요</option>
+                ${state.myCoupons.filter(c => c.status === '미사용').map(c => 
+                  `<option value="${c.id}">${c.name} (${c.type === '할인금액' ? c.value.toLocaleString() + '원' : c.value + '%'})</option>`
+                ).join('')}
+              </select>
+            </div>
+
+            <div style="padding: 20px; background-color: #F8FAFC; border-radius: 12px; margin-bottom: 24px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                <span style="font-size: 15px; color: #6B7280;">상품금액</span>
+                <span style="font-size: 15px; font-weight: 500; color: #1F2937;">${state.productPrice.toLocaleString()}원</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #E5E7EB;">
+                <span style="font-size: 15px; color: #6B7280;">쿠폰할인</span>
+                <span style="font-size: 15px; font-weight: 500; color: #DC2626;">${discount > 0 ? '-' + discount.toLocaleString() + '원' : '0원'}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 16px; font-weight: 600; color: #1F2937;">최종 결제금액</span>
+                <span style="font-size: 28px; font-weight: 600; color: #2563EB;">${finalPrice.toLocaleString()}원</span>
+              </div>
+            </div>
+
+            <button style="width: 100%; padding: 16px; background-color: #2563EB; border: none; border-radius: 10px; font-size: 16px; font-weight: 500; cursor: pointer; color: #FFF; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              🛒 ${finalPrice.toLocaleString()}원 결제하기
+            </button>
+          </div>
+
+          ${state.selectedPaymentCoupon ? `
+            <div style="padding: 16px; background-color: #EEF4FF; border-radius: 12px; border: 1px solid #2563EB; font-size: 14px; color: #1E40AF; display: flex; align-items: center; gap: 8px;">
+              ⚠️ 쿠폰 적용 시 결제 후 취소가 불가능합니다.
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      document.getElementById('payment-coupon').onchange = (e) => { state.selectedPaymentCoupon = e.target.value; renderPayment(); };
+    }
+
+    // CRUD 함수들
+    function deleteCoupon(id) { 
+      const coupon = state.coupons.find(c => c.id === id);
+      showDeleteConfirmModal('쿠폰 삭제', `"${coupon.name}" 쿠폰을 삭제하시겠습니까?<br><br><span style="color: #DC2626;">삭제된 데이터는 복구할 수 없습니다.</span>`, () => {
+        state.coupons = state.coupons.filter(c => c.id !== id);
+        renderCouponCreate();
+      });
+    }
+    
+    function editCoupon(id) { openCouponModal(state.coupons.find(c => c.id === id)); }
+    
+    // 모달 닫기
+    function closeModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+
+    // 삭제 확인 모달
+    function showDeleteConfirmModal(title, message, onConfirm) {
+      document.getElementById('modal-content').innerHTML = `
+        <div style="padding: 24px; border-bottom: 1px solid #E5E7EB;">
+          <h3 style="font-size: 20px; font-weight: 600; color: #1F2937;">${title}</h3>
+        </div>
+        <div style="padding: 32px 24px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 64px; height: 64px; margin: 0 auto 16px; background-color: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <span style="font-size: 32px;">⚠️</span>
+            </div>
+            <p style="font-size: 16px; color: #374151; line-height: 1.6;">${message}</p>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button onclick="closeModal()" style="flex: 1; padding: 12px; background-color: #FFF; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; color: #374151;">
+              취소
+            </button>
+            <button onclick="confirmDelete()" style="flex: 1; padding: 12px; background-color: #DC2626; border: none; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; color: #FFF;">
+              삭제
+            </button>
+          </div>
+        </div>
+      `;
+      
+      window.confirmDelete = () => {
+        onConfirm();
+        closeModal();
+      };
+      
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    // 쿠폰 모달
+    function openCouponModal(coupon = null) {
+      const isEdit = coupon !== null;
+      const data = coupon || { name: '', description: '', type: '할인금액', value: '', validDays: 30, target: '공개' };
+
+      document.getElementById('modal-content').innerHTML = `
+        <div style="padding: 24px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between;">
+          <h3 style="font-size: 20px; font-weight: 600; color: #1F2937;">${isEdit ? '쿠폰 수정' : '쿠폰 생성'}</h3>
+          <button onclick="closeModal()" style="background: none; border: none; cursor: pointer; font-size: 24px; color: #6B7280;">✕</button>
+        </div>
+        <div style="padding: 24px;">
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">쿠폰명</label>
+            <input type="text" id="name" value="${data.name}" required style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">쿠폰 설명</label>
+            <textarea id="description" placeholder="쿠폰에 대한 설명을 입력하세요" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; min-height: 80px; resize: vertical;">${data.description || ''}</textarea>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div>
+              <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">할인유형</label>
+              <select id="type" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; background: #FFF;">
+                <option value="할인금액" ${data.type === '할인금액' ? 'selected' : ''}>할인금액</option>
+                <option value="할인율" ${data.type === '할인율' ? 'selected' : ''}>할인율</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">할인값</label>
+              <input type="number" id="value" value="${data.value}" required style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
+            </div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">유효기간</label>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 14px; color: #6B7280; white-space: nowrap;">발급일로부터</span>
+              <input type="number" id="validDays" value="${data.validDays || 30}" min="1" required style="flex: 1; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
+              <span style="font-size: 14px; color: #6B7280; white-space: nowrap;">일</span>
+            </div>
+            <p style="font-size: 12px; color: #9CA3AF; margin-top: 6px;">예: 30일 입력 시 발급일로부터 30일간 유효</p>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">발행대상</label>
+            <select id="target" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; background: #FFF;">
+              <option value="공개" ${data.target === '공개' ? 'selected' : ''}>공개</option>
+              <option value="지정회원" ${data.target === '지정회원' ? 'selected' : ''}>지정회원</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button type="button" onclick="closeModal()" style="flex: 1; padding: 12px; background-color: #FFF; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 15px; cursor: pointer;">취소</button>
+            <button type="button" onclick="saveCoupon(${isEdit ? coupon.id : 'null'})" style="flex: 1; padding: 12px; background-color: #2563EB; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; color: #FFF;">${isEdit ? '수정' : '생성'}</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    function saveCoupon(id) {
+      const validDays = parseInt(document.getElementById('validDays').value);
+      const today = new Date();
+      const validFrom = today.toISOString().split('T')[0];
+      const validToDate = new Date(today);
+      validToDate.setDate(validToDate.getDate() + validDays);
+      const validTo = validToDate.toISOString().split('T')[0];
+
+      const data = { 
+        name: document.getElementById('name').value, 
+        description: document.getElementById('description').value,
+        type: document.getElementById('type').value, 
+        value: parseFloat(document.getElementById('value').value), 
+        validFrom: validFrom,
+        validTo: validTo,
+        validDays: validDays,
+        target: document.getElementById('target').value 
+      };
+      
+      if (id) { 
+        const idx = state.coupons.findIndex(c => c.id === id); 
+        state.coupons[idx] = { ...state.coupons[idx], ...data }; 
+      } 
+      else { 
+        state.coupons.push({ id: Date.now(), date: new Date().toISOString().split('T')[0], ...data, status: 'active' }); 
+      }
+      closeModal(); 
+      renderCouponCreate();
+    }
+
+    // 이벤트 모달
+    // 회원 추가 모달
+    function openMemberModal(couponId) {
+      state.selectedCouponForMembers = couponId;
+      state.memberModalTab = 'add';
+      renderMemberModal();
+    }
+
+    function renderMemberModal() {
+      const coupon = state.coupons.find(c => c.id === state.selectedCouponForMembers);
+      const assignedToCoupon = state.assignedMembers.filter(m => m.couponId === state.selectedCouponForMembers);
+
+      let contentHtml = '';
+
+      if (state.memberModalTab === 'add') {
+        // 회원추가 탭
+        contentHtml = `
+          <div style="padding: 24px;">
+            <div style="display: flex; gap: 12px; align-items: flex-end; margin-bottom: 20px;">
+              <div style="flex: 0 0 120px;">
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #6B7280; margin-bottom: 6px;">검색 조건</label>
+                <select id="member-search-type" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; background: #FFF;">
+                  <option value="memberId" ${state.memberSearchType === 'memberId' ? 'selected' : ''}>아이디</option>
+                  <option value="name" ${state.memberSearchType === 'name' ? 'selected' : ''}>이름</option>
+                </select>
+              </div>
+              <div style="flex: 1;">
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #6B7280; margin-bottom: 6px;">검색어</label>
+                <input type="text" id="member-search-keyword" placeholder="검색어 입력" value="${state.memberSearchKeyword}" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
+              </div>
+              <div style="flex: 0 0 120px;">
+                <label style="display: block; font-size: 13px; font-weight: 500; color: #6B7280; margin-bottom: 6px;">회원그룹</label>
+                <select id="member-search-group" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; background: #FFF;">
+                  <option value="">전체</option>
+                  <option value="VIP" ${state.memberSearchGroup === 'VIP' ? 'selected' : ''}>VIP</option>
+                  <option value="일반" ${state.memberSearchGroup === '일반' ? 'selected' : ''}>일반</option>
+                </select>
+              </div>
+              <button onclick="performMemberSearch()" style="padding: 10px 20px; background-color: #2563EB; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; color: #FFF; white-space: nowrap;">
+                🔍 검색
+              </button>
+            </div>
+
+            <div style="background-color: #F8FAFC; padding: 16px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #E5E7EB;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h4 style="font-size: 14px; font-weight: 600; color: #374151; margin: 0;">📊 엑셀 일괄 등록</h4>
+                <button onclick="downloadMemberTemplate()" style="padding: 6px 12px; background-color: #FFF; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: #374151;">
+                  📥 샘플 양식 다운로드
+                </button>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <input type="file" id="excel-upload" accept=".csv,.xlsx,.txt" style="flex: 1; padding: 8px; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 13px; background: #FFF;">
+                <button onclick="uploadMemberExcel()" style="padding: 8px 16px; background-color: #10B981; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; color: #FFF; white-space: nowrap;">
+                  📤 업로드
+                </button>
+              </div>
+              <p style="font-size: 12px; color: #6B7280; margin-top: 8px; margin-bottom: 0;">CSV 파일에 회원 아이디를 한 줄에 하나씩 입력하세요</p>
+            </div>
+
+            <div style="border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; max-height: 350px; overflow-y: auto; margin-bottom: 20px;">
+              <table id="member-table" style="width: 100%; border-collapse: collapse;">
+                <thead style="background-color: #F8FAFC; position: sticky; top: 0;">
+                  <tr>
+                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">
+                      <input type="checkbox" id="select-all-members" style="cursor: pointer;">
+                    </th>
+                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">회원ID</th>
+                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">이름</th>
+                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">그룹</th>
+                  </tr>
+                </thead>
+                <tbody id="member-tbody"></tbody>
+              </table>
+            </div>
+
+            <div style="padding: 16px; background-color: #F8FAFC; border-radius: 12px; font-size: 14px; color: #6B7280; margin-bottom: 20px;">
+              선택된 회원: <span id="selected-count" style="font-weight: 600; color: #2563EB;">0명</span>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <button onclick="closeModal()" style="flex: 1; padding: 12px; background-color: #FFF; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 15px; cursor: pointer;">취소</button>
+              <button onclick="addSelectedMembers()" style="flex: 1; padding: 12px; background-color: #2563EB; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; color: #FFF;">등록</button>
+            </div>
+          </div>
+        `;
+      } else {
+        // 등록된 회원 탭
+        contentHtml = `
+          <div style="padding: 24px;">
+            ${assignedToCoupon.length > 0 ? `
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div style="font-size: 14px; color: #6B7280;">
+                  선택된 회원: <span id="assigned-selected-count" style="font-weight: 600; color: #2563EB;">0명</span>
+                </div>
+                <button onclick="deleteSelectedAssignedMembers()" style="padding: 8px 16px; background-color: #DC2626; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; color: #FFF;">
+                  선택 삭제
+                </button>
+              </div>
+
+              <div style="border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; max-height: 500px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <thead style="background-color: #F8FAFC; position: sticky; top: 0;">
+                    <tr>
+                      <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">
+                        <input type="checkbox" id="select-all-assigned" style="cursor: pointer;" onchange="toggleSelectAllAssigned()">
+                      </th>
+                      <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">회원ID</th>
+                      <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">이름</th>
+                      <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">그룹</th>
+                      <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">상태</th>
+                      <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">만료일</th>
+                      <th style="padding: 12px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${assignedToCoupon.map((m, index) => `
+                      <tr style="border-top: 1px solid #E5E7EB;">
+                        <td style="padding: 12px;">
+                          <input type="checkbox" class="assigned-checkbox" data-member-id="${m.id}" data-coupon-id="${m.couponId}" style="cursor: pointer;" onchange="updateAssignedSelectedCount()">
+                        </td>
+                        <td style="padding: 12px; font-size: 14px; color: #374151;">${m.memberId}</td>
+                        <td style="padding: 12px; font-size: 14px; color: #374151;">${m.name}</td>
+                        <td style="padding: 12px;">
+                          <span style="padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; background-color: ${m.group === 'VIP' ? '#FEF3C7' : '#DBEAFE'}; color: ${m.group === 'VIP' ? '#92400E' : '#1E40AF'};">${m.group}</span>
+                        </td>
+                        <td style="padding: 12px;">
+                          <span style="padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; background-color: #DBEAFE; color: #1E40AF;">${m.status}</span>
+                        </td>
+                        <td style="padding: 12px; font-size: 14px; color: #6B7280;">${m.expiryDate || coupon.validTo}</td>
+                        <td style="padding: 12px; text-align: center;">
+                          <button onclick="deleteAssignedMember(${m.id}, ${m.couponId})" style="padding: 6px 12px; background: #FFF; border: 1px solid #FCA5A5; border-radius: 6px; font-size: 13px; cursor: pointer; color: #DC2626;">
+                            삭제
+                          </button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : `
+              <div style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 48px; margin-bottom: 16px;">👥</div>
+                <p style="font-size: 16px; color: #6B7280; margin-bottom: 8px;">등록된 회원이 없습니다</p>
+                <p style="font-size: 14px; color: #9CA3AF;">회원추가 탭에서 회원을 등록해주세요</p>
+              </div>
+            `}
+          </div>
+        `;
+      }
+
+      document.getElementById('modal-content').innerHTML = `
+        <div style="padding: 24px; border-bottom: 1px solid #E5E7EB; display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="font-size: 20px; font-weight: 600; color: #1F2937;">회원 관리</h3>
+          <button onclick="closeModal()" style="background: none; border: none; cursor: pointer; font-size: 24px; color: #6B7280;">✕</button>
+        </div>
+        
+        <div style="border-bottom: 1px solid #E5E7EB; padding: 0 24px; display: flex; gap: 16px;">
+          <button class="tab-btn ${state.memberModalTab === 'add' ? 'active' : ''}" onclick="state.memberModalTab='add'; renderMemberModal();">
+            회원추가
+          </button>
+          <button class="tab-btn ${state.memberModalTab === 'list' ? 'active' : ''}" onclick="state.memberModalTab='list'; renderMemberModal();">
+            등록된 회원 (${assignedToCoupon.length})
+          </button>
+        </div>
+
+        ${contentHtml}
+      `;
+
+      document.getElementById('modal-overlay').classList.remove('hidden');
+
+      if (state.memberModalTab === 'add') {
+        renderMemberTable();
+        
+        // 검색 필드 Enter 키 이벤트
+        const searchKeyword = document.getElementById('member-search-keyword');
+        if (searchKeyword) {
+          searchKeyword.onkeypress = (e) => {
+            if (e.key === 'Enter') {
+              performMemberSearch();
+            }
+          };
+        }
+        
+        document.getElementById('select-all-members').onchange = toggleSelectAll;
+      }
+    }
+
+    function performMemberSearch() {
+      state.memberSearchType = document.getElementById('member-search-type').value;
+      state.memberSearchKeyword = document.getElementById('member-search-keyword').value;
+      state.memberSearchGroup = document.getElementById('member-search-group').value;
+      renderMemberTable();
+    }
+
+    function renderMemberTable() {
+      const searchType = state.memberSearchType || 'memberId';
+      const keyword = (state.memberSearchKeyword || '').toLowerCase();
+      const searchGroup = state.memberSearchGroup || '';
+
+      const filtered = state.members.filter(m => {
+        const matchKeyword = keyword === '' || 
+          (searchType === 'memberId' ? m.memberId.toLowerCase().includes(keyword) : m.name.toLowerCase().includes(keyword));
+        const matchGroup = searchGroup === '' || m.group === searchGroup;
+        return matchKeyword && matchGroup;
+      });
+
+      const tbody = document.getElementById('member-tbody');
+      tbody.innerHTML = filtered.map(m => `
+        <tr style="border-top: 1px solid #E5E7EB;">
+          <td style="padding: 12px;">
+            <input type="checkbox" class="member-checkbox" data-id="${m.id}" style="cursor: pointer;">
+          </td>
+          <td style="padding: 12px; font-size: 14px; color: #374151;">${m.memberId}</td>
+          <td style="padding: 12px; font-size: 14px; color: #374151;">${m.name}</td>
+          <td style="padding: 12px;">
+            <span style="padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; background-color: ${m.group === 'VIP' ? '#FEF3C7' : '#DBEAFE'}; color: ${m.group === 'VIP' ? '#92400E' : '#1E40AF'};">${m.group}</span>
+          </td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll('.member-checkbox').forEach(cb => {
+        cb.onchange = updateSelectedCount;
+      });
+      updateSelectedCount();
+    }
+
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('select-all-members').checked;
+      document.querySelectorAll('.member-checkbox').forEach(cb => {
+        cb.checked = selectAll;
+      });
+      updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+      const selected = document.querySelectorAll('.member-checkbox:checked').length;
+      document.getElementById('selected-count').textContent = selected + '명';
+    }
+
+    function addSelectedMembers() {
+      const selectedIds = Array.from(document.querySelectorAll('.member-checkbox:checked')).map(cb => parseInt(cb.dataset.id));
+      
+      if (selectedIds.length === 0) {
+        alert('회원을 선택해주세요.');
+        return;
+      }
+
+      const coupon = state.coupons.find(c => c.id === state.selectedCouponForMembers);
+      const newAssignments = selectedIds.map(memberId => {
+        const member = state.members.find(m => m.id === memberId);
+        return {
+          ...member,
+          couponId: state.selectedCouponForMembers,
+          status: '미사용',
+          assignedDate: new Date().toISOString().split('T')[0],
+          expiryDate: coupon.validTo
+        };
+      });
+
+      state.assignedMembers = [...state.assignedMembers, ...newAssignments];
+      alert(`${selectedIds.length}명의 회원에게 쿠폰이 발급되었습니다.`);
+      state.memberModalTab = 'list';
+      renderMemberModal();
+    }
+
+    // 엑셀 샘플 양식 다운로드
+    function downloadMemberTemplate() {
+      const sampleData = state.members.slice(0, 3).map(m => m.memberId).join('\n');
+      const csvContent = '회원아이디\n' + sampleData;
+      
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', '회원_일괄등록_샘플양식.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      alert('샘플 양식이 다운로드되었습니다.\nCSV 파일에 회원 아이디를 한 줄에 하나씩 입력하세요.');
+    }
+
+    // 엑셀 파일 업로드 및 일괄 등록
+    function uploadMemberExcel() {
+      const fileInput = document.getElementById('excel-upload');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('파일을 선택해주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const text = e.target.result;
+          // CSV 파싱: 줄바꿈으로 분리하고 빈 줄 제거
+          const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line);
+          
+          // 첫 줄이 헤더인 경우 제거
+          const startIndex = lines[0].includes('회원') || lines[0].includes('아이디') || lines[0].includes('ID') ? 1 : 0;
+          const memberIds = lines.slice(startIndex);
+          
+          if (memberIds.length === 0) {
+            alert('파일에 회원 아이디가 없습니다.');
+            return;
+          }
+
+          // 아이디로 회원 매칭
+          const matched = [];
+          const notFound = [];
+          
+          memberIds.forEach(memberId => {
+            const cleanId = memberId.trim();
+            const member = state.members.find(m => m.memberId === cleanId);
+            if (member) {
+              matched.push(member);
+            } else {
+              notFound.push(cleanId);
+            }
+          });
+
+          if (matched.length === 0) {
+            alert('일치하는 회원이 없습니다.\n아이디를 확인해주세요.');
+            return;
+          }
+
+          // 쿠폰 발급
+          const coupon = state.coupons.find(c => c.id === state.selectedCouponForMembers);
+          const newAssignments = matched.map(member => ({
+            ...member,
+            couponId: state.selectedCouponForMembers,
+            status: '미사용',
+            assignedDate: new Date().toISOString().split('T')[0],
+            expiryDate: coupon.validTo
+          }));
+
+          state.assignedMembers = [...state.assignedMembers, ...newAssignments];
+          
+          let message = `${matched.length}명의 회원에게 쿠폰이 발급되었습니다.`;
+          if (notFound.length > 0) {
+            message += `\n\n⚠️ ${notFound.length}개의 아이디를 찾을 수 없습니다:\n${notFound.slice(0, 5).join(', ')}${notFound.length > 5 ? ' 외 ' + (notFound.length - 5) + '개' : ''}`;
+          }
+          
+          alert(message);
+          fileInput.value = ''; // 파일 input 초기화
+          state.memberModalTab = 'list';
+          renderMemberModal();
+          
+        } catch (error) {
+          alert('파일을 읽는 중 오류가 발생했습니다.\nCSV 형식을 확인해주세요.');
+          console.error('Upload error:', error);
+        }
+      };
+      
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    // 등록된 회원 전체 선택
+    function toggleSelectAllAssigned() {
+      const selectAll = document.getElementById('select-all-assigned').checked;
+      document.querySelectorAll('.assigned-checkbox').forEach(cb => {
+        cb.checked = selectAll;
+      });
+      updateAssignedSelectedCount();
+    }
+
+    // 등록된 회원 선택 수 업데이트
+    function updateAssignedSelectedCount() {
+      const selected = document.querySelectorAll('.assigned-checkbox:checked').length;
+      const countEl = document.getElementById('assigned-selected-count');
+      if (countEl) {
+        countEl.textContent = selected + '명';
+      }
+    }
+
+    // 등록된 회원 개별 삭제
+    function deleteAssignedMember(memberId, couponId) {
+      const member = state.assignedMembers.find(m => m.id === memberId && m.couponId === couponId);
+      showDeleteConfirmModal(
+        '회원 삭제',
+        `"${member.name}"님을 쿠폰 발급 대상에서 삭제하시겠습니까?<br><br><span style="color: #DC2626;">삭제된 데이터는 복구할 수 없습니다.</span>`,
+        () => {
+          state.assignedMembers = state.assignedMembers.filter(m => !(m.id === memberId && m.couponId === couponId));
+          renderMemberModal();
+        }
+      );
+    }
+
+    // 등록된 회원 선택 삭제
+    function deleteSelectedAssignedMembers() {
+      const selectedCheckboxes = document.querySelectorAll('.assigned-checkbox:checked');
+      
+      if (selectedCheckboxes.length === 0) {
+        alert('삭제할 회원을 선택해주세요.');
+        return;
+      }
+
+      const selectedMembers = Array.from(selectedCheckboxes).map(cb => ({
+        memberId: parseInt(cb.dataset.memberId),
+        couponId: parseInt(cb.dataset.couponId)
+      }));
+
+      showDeleteConfirmModal(
+        '회원 일괄 삭제',
+        `선택한 ${selectedMembers.length}명의 회원을 쿠폰 발급 대상에서 삭제하시겠습니까?<br><br><span style="color: #DC2626;">삭제된 데이터는 복구할 수 없습니다.</span>`,
+        () => {
+          selectedMembers.forEach(({ memberId, couponId }) => {
+            state.assignedMembers = state.assignedMembers.filter(m => !(m.id === memberId && m.couponId === couponId));
+          });
+          renderMemberModal();
+        }
+      );
+    }
+
+    renderPage('coupon-create');
+  </script>
+</body>
+</html>
