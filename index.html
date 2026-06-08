@@ -151,9 +151,9 @@
       couponStatusSearchType: 'userId',
       couponStatusSearchKeyword: '',
       coupons: [
-        { id: 1, date: '2024-05-15', couponCode: 'AB123456', couponCodes: ['AB123456'], usageStatus: {'AB123456': false}, name: '신규회원 환영 쿠폰', description: '신규 가입 회원을 위한 특별 할인 쿠폰입니다', type: '할인금액', value: 10000, validFrom: '2024-05-15', validTo: '2024-12-31', validDays: 30, target: '전체회원', status: 'active', linkedEventId: null, linkedEventName: null, usageLimit: 100, usedCount: 15 },
-        { id: 2, date: '2024-05-16', couponCode: 'CD789012', couponCodes: ['CD789012','CD789013','CD789014'], usageStatus: {'CD789012': true,'CD789013': false,'CD789014': false}, name: '봄맞이 특별할인', description: '봄 시즌 한정 특별 할인 혜택', type: '할인율', value: 15, validFrom: '2024-05-16', validTo: '2024-06-30', validDays: 45, target: '지정회원', status: 'active', linkedEventId: 1, linkedEventName: '신학기 특별 프로모션', usageLimit: 1, usedCount: 0 },
-        { id: 3, date: '2024-05-17', couponCode: 'EF345678', couponCodes: ['EF345678','EF345679'], usageStatus: {'EF345678': true,'EF345679': false}, name: 'VIP 전용 쿠폰', description: 'VIP 회원님께만 제공되는 특별 쿠폰', type: '할인금액', value: 50000, validFrom: '2024-05-17', validTo: '2024-12-31', validDays: 90, target: '지정회원', status: 'active', linkedEventId: null, linkedEventName: null, usageLimit: 1, usedCount: 0 }
+        { id: 1, date: '2024-05-15', couponCode: 'AB123456', couponCodes: ['AB123456'], usageStatus: {'AB123456': false}, name: '신규회원 환영 쿠폰', description: '신규 가입 회원을 위한 특별 할인 쿠폰입니다', type: '할인금액', value: 10000, validFrom: '2024-05-15', validTo: '2024-12-31', validDays: 30, target: '전체회원', status: 'active', linkedEventId: null, linkedEventName: null, usageLimit: 100, usedCount: 15, issuanceStartDate: '2026-05-01', issuanceEndDate: '2026-08-31' },
+        { id: 2, date: '2024-05-16', couponCode: 'CD789012', couponCodes: ['CD789012','CD789013','CD789014'], usageStatus: {'CD789012': true,'CD789013': false,'CD789014': false}, name: '봄맞이 특별할인', description: '봄 시즌 한정 특별 할인 혜택', type: '할인율', value: 15, validFrom: '2024-05-16', validTo: '2024-06-30', validDays: 45, target: '지정회원', status: 'active', linkedEventId: 1, linkedEventName: '신학기 특별 프로모션', usageLimit: 1, usedCount: 0, issuanceStartDate: '2026-03-01', issuanceEndDate: '2026-05-31' },
+        { id: 3, date: '2024-05-17', couponCode: 'EF345678', couponCodes: ['EF345678','EF345679'], usageStatus: {'EF345678': true,'EF345679': false}, name: 'VIP 전용 쿠폰', description: 'VIP 회원님께만 제공되는 특별 쿠폰', type: '할인금액', value: 50000, validFrom: '2024-05-17', validTo: '2024-12-31', validDays: 90, target: '지정회원', status: 'active', linkedEventId: null, linkedEventName: null, usageLimit: 1, usedCount: 0, issuanceStartDate: '2026-07-01', issuanceEndDate: '2026-12-31' }
       ],
       myCoupons: [
         { id: 1, couponCode: 'AB123456', name: '신규회원 환영 쿠폰', type: '할인금액', value: 10000, validTo: '2024-12-31', status: '미사용' },
@@ -184,39 +184,30 @@
         { id: 3, date: '2024-04-01', name: '봄맞이 감사 이벤트', description: '봄맞이 감사의 마음을 담아', startDate: '2024-04-01', endDate: '2024-04-30', status: '종료', targetType: '첫교육신청', linkedCourses: [], linkedCourseNames: [] }
       ],
       courses: [
-        { id: 1, code: 'PY001', name: 'Python 기초', instructor: '김강사', startDate: '2024-06-01', endDate: '2024-08-31', status: '모집중' },
-        { id: 2, code: 'JV002', name: 'Java 중급', instructor: '이강사', startDate: '2024-06-15', endDate: '2024-09-15', status: '모집중' },
-        { id: 3, code: 'WB003', name: '웹개발 실전', instructor: '박강사', startDate: '2024-07-01', endDate: '2024-09-30', status: '모집중' },
-        { id: 4, code: 'DB004', name: '데이터베이스 설계', instructor: '최강사', startDate: '2024-06-01', endDate: '2024-08-31', status: '마감' },
-        { id: 5, code: 'AI005', name: 'AI 입문', instructor: '정강사', startDate: '2024-07-15', endDate: '2024-10-15', status: '모집중' },
-        { id: 6, code: 'RE006', name: 'React 프론트엔드', instructor: '강강사', startDate: '2024-06-10', endDate: '2024-09-10', status: '모집중' },
-        { id: 7, code: 'ND007', name: 'Node.js 백엔드', instructor: '홍강사', startDate: '2024-06-20', endDate: '2024-09-20', status: '모집중' },
-        { id: 8, code: 'ML008', name: '머신러닝 기초', instructor: '송강사', startDate: '2024-07-01', endDate: '2024-10-01', status: '대기' }
+        { id: 1, code: 'PY001', name: 'Python 기초',       instructor: '김강사', startDate: '2024-06-01', endDate: '2024-08-31', status: '모집중', fee: 150000 },
+        { id: 2, code: 'JV002', name: 'Java 중급',          instructor: '이강사', startDate: '2024-06-15', endDate: '2024-09-15', status: '모집중', fee: 220000 },
+        { id: 3, code: 'WB003', name: '웹개발 실전',         instructor: '박강사', startDate: '2024-07-01', endDate: '2024-09-30', status: '모집중', fee: 350000 },
+        { id: 4, code: 'DB004', name: '데이터베이스 설계',    instructor: '최강사', startDate: '2024-06-01', endDate: '2024-08-31', status: '마감',   fee: 180000 },
+        { id: 5, code: 'AI005', name: 'AI 입문',             instructor: '정강사', startDate: '2024-07-15', endDate: '2024-10-15', status: '모집중', fee: 400000 },
+        { id: 6, code: 'RE006', name: 'React 프론트엔드',    instructor: '강강사', startDate: '2024-06-10', endDate: '2024-09-10', status: '모집중', fee: 280000 },
+        { id: 7, code: 'ND007', name: 'Node.js 백엔드',      instructor: '홍강사', startDate: '2024-06-20', endDate: '2024-09-20', status: '모집중', fee: 300000 },
+        { id: 8, code: 'ML008', name: '머신러닝 기초',        instructor: '송강사', startDate: '2024-07-01', endDate: '2024-10-01', status: '대기',   fee: 500000 }
       ],
       courseSearchKeyword: '',
       selectedCoursesForEvent: [],
       eventSearch: '',
       eventView: 'list',
       issuedCoupons: [
-        { id: 1,  userId: 'user001', userName: '김철수',  userGroup: 'VIP', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-15', usedDate: '2024-05-16' },
-        { id: 2,  userId: 'user002', userName: '이영희',  userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-15', usedDate: '2024-05-20' },
-        { id: 3,  userId: 'user003', userName: '박민수',  userGroup: 'VIP', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-15', usedDate: '2024-05-21' },
-        { id: 4,  userId: 'user004', userName: '최지은',  userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-16', usedDate: '2024-05-22' },
-        { id: 5,  userId: 'user005', userName: '정대호',  userGroup: 'VIP', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-16', usedDate: '2024-05-23' },
-        { id: 6,  userId: 'user006', userName: '한소희',  userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-17', usedDate: '2024-05-24' },
-        { id: 7,  userId: 'user007', userName: '오준혁',  userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-17', usedDate: '2024-05-25' },
-        { id: 8,  userId: 'user008', userName: '임채원',  userGroup: 'VIP', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-18', usedDate: '2024-05-26' },
-        { id: 9,  userId: 'user009', userName: '강다은',  userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-18', usedDate: '2024-05-27' },
-        { id: 10, userId: 'user010', userName: '윤서준',  userGroup: 'VIP', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-19', usedDate: '2024-05-28' },
-        { id: 11, userId: 'user011', userName: '송미래',  userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-19', usedDate: '2024-05-29' },
-        { id: 12, userId: 'user012', userName: '백지훈',  userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-20', usedDate: '2024-05-30' },
-        { id: 13, userId: 'user013', userName: '고은지',  userGroup: 'VIP', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-20', usedDate: '2024-05-31' },
-        { id: 14, userId: 'user014', userName: '류현진',  userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-21', usedDate: '2024-06-01' },
-        { id: 15, userId: 'user015', userName: '신예린',  userGroup: 'VIP', couponName: '신규회원 환영 쿠폰', couponType: '공개', validTo: '2024-12-31', status: '사용완료', issuedDate: '2024-05-21', usedDate: '2024-06-02' },
-        { id: 16, userId: 'user001', userName: '김철수',  userGroup: 'VIP', couponName: 'VIP 전용 쿠폰', couponType: '지정회원', validTo: '2024-12-31', status: '미사용', issuedDate: '2024-05-17' },
-        { id: 17, userId: 'user003', userName: '박민수',  userGroup: 'VIP', couponName: 'VIP 전용 쿠폰', couponType: '지정회원', validTo: '2024-12-31', status: '미사용', issuedDate: '2024-05-17' },
-        { id: 18, userId: 'user002', userName: '이영희',  userGroup: '일반', couponName: '봄맞이 특별할인', couponType: '지정회원', validTo: '2024-06-30', status: '사용완료', issuedDate: '2024-05-16', usedDate: '2024-05-25' },
-        { id: 19, userId: 'user004', userName: '최지은',  userGroup: '일반', couponName: '봄맞이 특별할인', couponType: '지정회원', validTo: '2024-06-30', status: '미사용', issuedDate: '2024-05-19' }
+        { id: 1,  userId: 'kim2024',  userName: '김민준', userGroup: 'VIP',  couponName: '신규회원 환영 쿠폰', couponType: '공개',   validTo: '2026-09-30', status: '미사용',   issuedDate: '2026-06-01' },
+        { id: 2,  userId: 'lee_hj',   userName: '이하진', userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개',   validTo: '2026-08-15', status: '사용완료', issuedDate: '2026-05-20', usedDate: '2026-06-03' },
+        { id: 3,  userId: 'park_sw',  userName: '박서우', userGroup: 'VIP',  couponName: '신규회원 환영 쿠폰', couponType: '공개',   validTo: '2026-07-31', status: '미사용',   issuedDate: '2026-05-25' },
+        { id: 4,  userId: 'choi_yn',  userName: '최유나', userGroup: '일반', couponName: 'VIP 전용 쿠폰',    couponType: '지정회원', validTo: '2026-12-31', status: '미사용',   issuedDate: '2026-06-01' },
+        { id: 5,  userId: 'jung_th',  userName: '정태훈', userGroup: 'VIP',  couponName: 'VIP 전용 쿠폰',    couponType: '지정회원', validTo: '2026-12-31', status: '사용완료', issuedDate: '2026-05-10', usedDate: '2026-05-28' },
+        { id: 6,  userId: 'han_sr',   userName: '한소라', userGroup: '일반', couponName: '봄맞이 특별할인',   couponType: '지정회원', validTo: '2026-06-30', status: '미사용',   issuedDate: '2026-05-15' },
+        { id: 7,  userId: 'oh_jh',    userName: '오지훈', userGroup: 'VIP',  couponName: '봄맞이 특별할인',   couponType: '지정회원', validTo: '2026-06-30', status: '사용완료', issuedDate: '2026-05-18', usedDate: '2026-06-01' },
+        { id: 8,  userId: 'lim_cw',   userName: '임채원', userGroup: '일반', couponName: '신규회원 환영 쿠폰', couponType: '공개',   validTo: '2026-05-31', status: '미사용',   issuedDate: '2026-05-01' },
+        { id: 9,  userId: 'kang_de',  userName: '강다은', userGroup: 'VIP',  couponName: 'VIP 전용 쿠폰',    couponType: '지정회원', validTo: '2026-11-30', status: '미사용',   issuedDate: '2026-06-05' },
+        { id: 10, userId: 'yoon_sj',  userName: '윤서준', userGroup: '일반', couponName: '봄맞이 특별할인',   couponType: '지정회원', validTo: '2026-06-30', status: '사용완료', issuedDate: '2026-05-22', usedDate: '2026-06-07' }
       ],
       couponModalLinkedCourses: [],
       couponCourseSearchKeyword: '',
@@ -345,6 +336,7 @@
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">쿠폰명</th>
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">할인유형</th>
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">할인값</th>
+                  <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">할인샘플</th>
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">발행기간</th>
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">유효기간</th>
                   <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">사용현황</th>
@@ -368,6 +360,9 @@
                     </td>
                     <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${c.type}</td>
                     <td style="padding: 16px 14px; font-size: 14px; font-weight: 600; color: #1F2937;">${c.type === '할인금액' ? c.value.toLocaleString() + '원' : c.value + '%'}</td>
+                    <td style="padding: 16px 14px; text-align: center;">
+                      <button onclick="openDiscountPreviewModal(${c.id})" style="padding:5px 12px;background:#FFF;border:1px solid #7C3AED;border-radius:6px;font-size:12px;cursor:pointer;color:#7C3AED;font-weight:600;white-space:nowrap;">🔍 미리보기</button>
+                    </td>
                     <td style="padding: 16px 14px; font-size: 12px; color: #6B7280; white-space: nowrap;">
                       ${c.issuanceStartDate || c.issuanceEndDate ? `
                         <div>${c.issuanceStartDate || '-'}</div>
@@ -377,9 +372,9 @@
                     <td style="padding: 16px 14px; font-size: 13px; color: #6B7280;">${c.validDays}일</td>
                     <td style="padding: 16px 14px; font-size: 13px;">
                       ${(() => {
-                        const used  = c.usedCount || 0;
+                        const used  = c.usedCount ?? 0;
                         const limit = c.usageLimit;
-                        if (!limit) return `<span style="font-size:12px;font-weight:600;color:#6B7280;padding:3px 8px;background:#F3F4F6;border-radius:10px;">무제한</span>`;
+                        if (limit == null) return `<span style="color:#9CA3AF;">-</span>`;
                         const isFull = used >= limit;
                         return `
                           <div>
@@ -719,6 +714,7 @@
                 <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">쿠폰번호</th>
                 <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">사용일</th>
                 <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">유효기간</th>
+                <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">기간연장</th>
                 <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">사용여부</th>
               </tr>
             </thead>
@@ -744,9 +740,18 @@
                       ${c.usedDate ? `<span style="font-weight:500;">${c.usedDate}</span>` : '<span style="color:#9CA3AF;">-</span>'}
                     </td>
                     <td style="padding: 16px 14px;">
-                      <span style="padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background-color: ${isExpired ? '#FEE2E2' : '#DBEAFE'}; color: ${isExpired ? '#DC2626' : '#1E40AF'};">
-                        ${daysRemaining}
-                      </span>
+                      <div style="font-size:13px;font-weight:600;color:${isExpired?'#DC2626':'#374151'};">${c.validTo || '-'}</div>
+                      <div style="margin-top:4px;">
+                        <span style="padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; background-color: ${isExpired ? '#FEE2E2' : '#DBEAFE'}; color: ${isExpired ? '#DC2626' : '#1E40AF'};">
+                          ${daysRemaining}
+                        </span>
+                      </div>
+                    </td>
+                    <td style="padding: 16px 14px; text-align: center;">
+                      ${isExpired
+                        ? `<button onclick="openExtendPeriodModal(${c.id})" style="padding:5px 12px;background:#FFF;border:1px solid #2563EB;border-radius:6px;font-size:12px;cursor:pointer;color:#2563EB;font-weight:500;white-space:nowrap;">📅 연장</button>`
+                        : `<button disabled style="padding:5px 12px;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:6px;font-size:12px;cursor:not-allowed;color:#D1D5DB;font-weight:500;white-space:nowrap;">📅 연장</button>`
+                      }
                     </td>
                     <td style="padding: 16px 14px; text-align: center;">
                       <span style="padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background-color: ${c.status === '미사용' ? '#DCFCE7' : '#F3F4F6'}; color: ${c.status === '미사용' ? '#166534' : '#6B7280'};">
@@ -757,7 +762,7 @@
                 `;
               }).join('') : `
                 <tr>
-                  <td colspan="9" style="padding: 60px 20px; text-align: center;">
+                  <td colspan="10" style="padding: 60px 20px; text-align: center;">
                     <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
                     <p style="font-size: 16px; color: #6B7280; margin-bottom: 8px;">검색 결과가 없습니다</p>
                     <p style="font-size: 14px; color: #9CA3AF;">다른 검색어로 시도해보세요</p>
@@ -1628,7 +1633,291 @@
     }
     // ────────────────────────────────────────────────────────────────
 
-    // ─── 발급 쿠폰 리스트 모달 ────────────────────────────────────────
+    // ─── 할인샘플 미리보기 모달 ───────────────────────────────────────
+    function openDiscountPreviewModal(couponId) {
+      const c = state.coupons.find(x => x.id === couponId);
+      if (!c) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      const statusLabel = !c.issuanceStartDate ? '-'
+        : today < c.issuanceStartDate ? '대기중'
+        : today > c.issuanceEndDate ? '종료' : '진행중';
+      const statusColor = statusLabel==='진행중'?'#16A34A':statusLabel==='대기중'?'#92400E':'#DC2626';
+      const statusBg    = statusLabel==='진행중'?'#D1FAE5':statusLabel==='대기중'?'#FEF3C7':'#FEE2E2';
+
+      const courseOptions = state.courses.map(cr =>
+        `<option value="${cr.id}" data-fee="${cr.fee}">[${cr.code}] ${cr.name} — ${(cr.fee||0).toLocaleString()}원 (${cr.instructor})</option>`
+      ).join('');
+
+      const conditions = [
+        { label:'발행항목',     value: c.issuanceTarget || '-' },
+        { label:'발행대상',     value: c.target },
+        { label:'발행기간',     value: c.issuanceStartDate ? `${c.issuanceStartDate} ~ ${c.issuanceEndDate}` : '-' },
+        { label:'사용횟수',     value: c.usageLimit != null ? `${c.usageLimit}회` : '-' },
+        { label:'할인 방식',    value: c.type==='할인금액' ? `${c.value.toLocaleString()}원 정액 할인` : `${c.value}% 비율 할인` },
+        c.minPaymentAmount ? { label:'최소결제금액', value:`${c.minPaymentAmount.toLocaleString()}원 이상`, highlight:true } : null
+      ].filter(Boolean);
+
+      document.getElementById('modal-content').innerHTML = `
+        <div style="padding:20px 24px;border-bottom:1px solid #E5E7EB;display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div>
+              <h3 style="font-size:18px;font-weight:700;color:#1F2937;margin:0;">🔍 할인 미리보기</h3>
+              <p style="font-size:13px;color:#6B7280;margin:4px 0 0;">${c.name} · <span style="font-weight:700;">${c.type==='할인금액'?c.value.toLocaleString()+'원 할인':c.value+'% 할인'}</span></p>
+            </div>
+            ${statusLabel!=='-'?`<span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${statusBg};color:${statusColor};">${statusLabel}</span>`:''}
+          </div>
+          <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;font-size:22px;color:#9CA3AF;">✕</button>
+        </div>
+        <div style="padding:20px 24px;max-height:calc(90vh - 140px);overflow-y:auto;">
+
+          <!-- 발행 조건 -->
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:700;color:#374151;margin-bottom:8px;">📋 쿠폰 발행 조건</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              ${conditions.map(cond=>`
+                <div style="padding:6px 12px;background:${cond.highlight?'#FFF7ED':'#F8FAFC'};border:1px solid ${cond.highlight?'#FED7AA':'#E5E7EB'};border-radius:8px;font-size:12px;">
+                  <span style="color:#9CA3AF;">${cond.label}: </span>
+                  <span style="font-weight:600;color:${cond.highlight?'#DC2626':'#1F2937'};">${cond.value}</span>
+                </div>`).join('')}
+            </div>
+          </div>
+
+          <!-- 과정 선택 -->
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:700;color:#374151;margin-bottom:8px;">📚 과정 선택</div>
+            <select id="preview-course-select" onchange="updateCoursePreview(${couponId})"
+              style="width:100%;padding:11px 14px;border:1px solid #D1D5DB;border-radius:10px;font-size:14px;background:#FFF;cursor:pointer;">
+              <option value="">-- 과정을 선택해주세요 --</option>
+              ${courseOptions}
+            </select>
+          </div>
+
+          <!-- 결과 카드 -->
+          <div id="course-preview-result" style="display:none;">
+            <div style="border:2px solid #2563EB;border-radius:14px;overflow:hidden;">
+              <!-- 과정 정보 -->
+              <div style="background:#EEF4FF;padding:14px 18px;border-bottom:1px solid #BFDBFE;">
+                <div id="preview-course-name" style="font-size:15px;font-weight:700;color:#1E40AF;margin-bottom:2px;"></div>
+                <div id="preview-course-meta" style="font-size:12px;color:#6B7280;"></div>
+              </div>
+              <!-- 금액 breakdown -->
+              <div style="padding:16px 18px;background:#FFF;">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F3F4F6;">
+                  <span style="font-size:14px;color:#6B7280;">과정 수강비</span>
+                  <span id="preview-fee" style="font-size:15px;font-weight:600;color:#374151;"></span>
+                </div>
+                <div id="preview-condition-row" style="display:none;padding:8px 0;border-bottom:1px solid #F3F4F6;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:13px;color:#DC2626;">⚠ 쿠폰 적용 불가</span>
+                    <span id="preview-condition-msg" style="font-size:12px;color:#DC2626;"></span>
+                  </div>
+                </div>
+                <div id="preview-discount-row" style="padding:8px 0;border-bottom:1px solid #F3F4F6;display:none;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:14px;color:#DC2626;">🎫 쿠폰 할인</span>
+                    <span id="preview-discount" style="font-size:15px;font-weight:700;color:#DC2626;"></span>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;">
+                  <span style="font-size:16px;font-weight:700;color:#1F2937;">예상 결제금액</span>
+                  <span id="preview-final" style="font-size:26px;font-weight:800;color:#2563EB;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div style="padding:16px 24px;border-top:1px solid #E5E7EB;">
+          <button onclick="closeModal()" style="width:100%;padding:12px;background:#FFF;border:1px solid #D1D5DB;border-radius:10px;font-size:14px;cursor:pointer;color:#374151;font-weight:500;">닫기</button>
+        </div>`;
+
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    function updateCoursePreview(couponId) {
+      const c = state.coupons.find(x => x.id === couponId);
+      const sel = document.getElementById('preview-course-select');
+      const resultEl = document.getElementById('course-preview-result');
+      if (!c || !sel || !sel.value) { resultEl.style.display = 'none'; return; }
+
+      const course = state.courses.find(cr => cr.id === parseInt(sel.value));
+      if (!course) { resultEl.style.display = 'none'; return; }
+
+      const fee = course.fee || 0;
+      const minAmt = c.minPaymentAmount || 0;
+      const eligible = fee >= minAmt;
+
+      let disc = 0;
+      if (eligible) {
+        disc = c.type === '할인금액' ? Math.min(c.value, fee) : Math.round(fee * c.value / 100);
+      }
+      const final = Math.max(0, fee - disc);
+
+      document.getElementById('preview-course-name').textContent = `[${course.code}] ${course.name}`;
+      document.getElementById('preview-course-meta').textContent = `강사: ${course.instructor} | 기간: ${course.startDate} ~ ${course.endDate}`;
+      document.getElementById('preview-fee').textContent = fee.toLocaleString() + '원';
+
+      const condRow = document.getElementById('preview-condition-row');
+      const discRow = document.getElementById('preview-discount-row');
+
+      if (!eligible) {
+        condRow.style.display = 'block';
+        document.getElementById('preview-condition-msg').textContent = `최소 ${minAmt.toLocaleString()}원 이상 결제 시 적용`;
+        discRow.style.display = 'none';
+      } else {
+        condRow.style.display = 'none';
+        discRow.style.display = 'block';
+        document.getElementById('preview-discount').textContent = '-' + disc.toLocaleString() + '원';
+      }
+
+      document.getElementById('preview-final').textContent = final.toLocaleString() + '원';
+      resultEl.style.display = 'block';
+    }
+    // ────────────────────────────────────────────────────────────────
+    let _extendCouponId = null;
+    let _extendSelectedDate = null;
+    let _extendCalYear = null;
+    let _extendCalMonth = null;
+
+    function openExtendPeriodModal(issuedCouponId) {
+      const ic = state.issuedCoupons.find(c => c.id === issuedCouponId);
+      if (!ic) return;
+      _extendCouponId = issuedCouponId;
+      _extendSelectedDate = null;
+      const today = new Date();
+      _extendCalYear  = today.getFullYear();
+      _extendCalMonth = today.getMonth();
+      renderExtendModal(ic);
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    function renderExtendModal(ic) {
+      if (!ic) ic = state.issuedCoupons.find(c => c.id === _extendCouponId);
+      const today = new Date().toISOString().split('T')[0];
+      const isExpired = ic.validTo && ic.validTo < today;
+
+      document.getElementById('modal-content').innerHTML = `
+        <div style="padding:20px 24px;border-bottom:1px solid #E5E7EB;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <h3 style="font-size:18px;font-weight:700;color:#1F2937;margin:0;">📅 유효기간 연장</h3>
+            <p style="font-size:13px;color:#6B7280;margin:4px 0 0;">${ic.couponName} · <strong>${ic.userName}</strong>(${ic.userId})</p>
+          </div>
+          <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;font-size:22px;color:#9CA3AF;line-height:1;">✕</button>
+        </div>
+        <div style="padding:20px 24px 24px;">
+          <!-- 현재/선택 날짜 표시 -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+            <div style="padding:12px 16px;background:#F8FAFC;border:1px solid #E5E7EB;border-radius:10px;">
+              <div style="font-size:11px;font-weight:600;color:#9CA3AF;margin-bottom:4px;">현재 유효기간</div>
+              <div style="font-size:15px;font-weight:700;color:${isExpired?'#DC2626':'#374151'};">
+                ${ic.validTo || '-'}${isExpired?' <span style="font-size:11px;background:#FEE2E2;color:#DC2626;padding:1px 6px;border-radius:4px;font-weight:500;">만료</span>':''}
+              </div>
+            </div>
+            <div id="extend-new-date-box" style="padding:12px 16px;background:${_extendSelectedDate?'#EEF4FF':'#F8FAFC'};border:1px solid ${_extendSelectedDate?'#2563EB':'#E5E7EB'};border-radius:10px;transition:all 0.2s;">
+              <div style="font-size:11px;font-weight:600;color:${_extendSelectedDate?'#2563EB':'#9CA3AF'};margin-bottom:4px;">새 유효기간</div>
+              <div style="font-size:15px;font-weight:700;color:${_extendSelectedDate?'#1E40AF':'#9CA3AF'};">
+                ${_extendSelectedDate || '날짜를 선택하세요'}
+              </div>
+            </div>
+          </div>
+          <!-- 인라인 달력 -->
+          <div style="border:1px solid #E5E7EB;border-radius:12px;overflow:hidden;">
+            ${buildInlineCalendar()}
+          </div>
+        </div>
+        <div style="padding:16px 24px;border-top:1px solid #E5E7EB;display:flex;gap:10px;">
+          <button onclick="closeModal()" style="flex:1;padding:12px;background:#FFF;border:1px solid #D1D5DB;border-radius:10px;font-size:14px;cursor:pointer;color:#374151;font-weight:500;">취소</button>
+          <button onclick="applyExtendPeriod(${_extendCouponId})" style="flex:2;padding:12px;background:${_extendSelectedDate?'#2563EB':'#9CA3AF'};border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:${_extendSelectedDate?'pointer':'not-allowed'};color:#FFF;transition:background 0.2s;">
+            ✓ 연장 적용${_extendSelectedDate?' → '+_extendSelectedDate:''}
+          </button>
+        </div>`;
+    }
+
+    function buildInlineCalendar() {
+      const today = new Date().toISOString().split('T')[0];
+      const ic = state.issuedCoupons.find(c => c.id === _extendCouponId);
+      const year = _extendCalYear, month = _extendCalMonth;
+      const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+      const dayNames = ['일','월','화','수','목','금','토'];
+
+      // 이번 달 첫날, 마지막날
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+
+      let cells = '';
+      let day = 1;
+      for (let row = 0; row < 6; row++) {
+        let hasDay = false;
+        let rowHtml = '<tr>';
+        for (let col = 0; col < 7; col++) {
+          const cellIdx = row * 7 + col;
+          if (cellIdx < firstDay || day > lastDate) {
+            rowHtml += '<td style="padding:0;"></td>';
+          } else {
+            hasDay = true;
+            const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+            const isToday    = dateStr === today;
+            const isSelected = dateStr === _extendSelectedDate;
+            const isPast     = dateStr <= (ic?.validTo || today);
+            const isSun = col === 0, isSat = col === 6;
+            let bg = 'transparent', textColor = isPast ? '#D1D5DB' : (isSun?'#EF4444':isSat?'#2563EB':'#374151');
+            let fw = '400', border = 'none', cursor = isPast ? 'not-allowed' : 'pointer';
+            if (isSelected) { bg = '#2563EB'; textColor = '#FFF'; fw = '700'; }
+            else if (isToday) { bg = '#EEF4FF'; textColor = '#2563EB'; fw = '700'; border = '1px solid #93C5FD'; }
+            const onclick = isPast ? '' : `onclick="selectExtendDate('${dateStr}')"`;
+            rowHtml += `<td style="padding:4px 2px;text-align:center;">
+              <div ${onclick} style="width:36px;height:36px;margin:0 auto;border-radius:50%;background:${bg};border:${border};color:${textColor};font-size:13px;font-weight:${fw};display:flex;align-items:center;justify-content:center;cursor:${cursor};transition:background 0.15s;" ${!isPast?`onmouseover="if(this.style.background==='transparent')this.style.background='#F3F4F6'" onmouseout="if(this.style.background==='rgb(243, 244, 246)')this.style.background='transparent'"`:''}>
+                ${day}
+              </div>
+            </td>`;
+            day++;
+          }
+        }
+        rowHtml += '</tr>';
+        if (hasDay) cells += rowHtml;
+        if (day > lastDate) break;
+      }
+
+      return `
+        <div style="background:#F8FAFC;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E5E7EB;">
+          <button onclick="moveExtendCalendar(-1)" style="width:32px;height:32px;background:#FFF;border:1px solid #E5E7EB;border-radius:8px;cursor:pointer;font-size:16px;color:#374151;display:flex;align-items:center;justify-content:center;">‹</button>
+          <span style="font-size:15px;font-weight:700;color:#1F2937;">${year}년 ${monthNames[month]}</span>
+          <button onclick="moveExtendCalendar(1)" style="width:32px;height:32px;background:#FFF;border:1px solid #E5E7EB;border-radius:8px;cursor:pointer;font-size:16px;color:#374151;display:flex;align-items:center;justify-content:center;">›</button>
+        </div>
+        <div style="padding:8px 12px 12px;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr>${dayNames.map((d,i)=>`<th style="padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:${i===0?'#EF4444':i===6?'#2563EB':'#9CA3AF'};">${d}</th>`).join('')}</tr>
+            </thead>
+            <tbody>${cells}</tbody>
+          </table>
+        </div>`;
+    }
+
+    function selectExtendDate(dateStr) {
+      _extendSelectedDate = dateStr;
+      renderExtendModal();
+    }
+
+    function moveExtendCalendar(dir) {
+      _extendCalMonth += dir;
+      if (_extendCalMonth > 11) { _extendCalMonth = 0; _extendCalYear++; }
+      if (_extendCalMonth < 0)  { _extendCalMonth = 11; _extendCalYear--; }
+      renderExtendModal();
+    }
+
+    function applyExtendPeriod(issuedCouponId) {
+      if (!_extendSelectedDate) { alert('새 유효기간을 선택해주세요.'); return; }
+      const ic = state.issuedCoupons.find(c => c.id === issuedCouponId);
+      if (!ic) return;
+      ic.validTo = _extendSelectedDate;
+      const today = new Date().toISOString().split('T')[0];
+      if (_extendSelectedDate >= today && ic.status !== '사용완료') ic.status = '미사용';
+      closeModal();
+      renderCouponStatus();
+    }
+    // ────────────────────────────────────────────────────────────────
     function openIssuedCouponsModal(couponId) {
       const coupon = state.coupons.find(c => c.id === couponId);
       if (!coupon) return;
@@ -2613,7 +2902,21 @@
               <option value="첫수강신청"   ${(data.issuanceTarget||'')==='첫수강신청'?'selected':''}>첫수강신청</option>
               <option value="교육과정"     ${(data.issuanceTarget||'')==='교육과정'?'selected':''}>교육과정</option>
               <option value="교육과정이수" ${(data.issuanceTarget||'')==='교육과정이수'?'selected':''}>교육과정이수</option>
+              <option value="찜하기"       ${(data.issuanceTarget||'')==='찜하기'?'selected':''}>찜하기</option>
+              <option value="지인추천"     ${(data.issuanceTarget||'')==='지인추천'?'selected':''}>지인추천</option>
+              <option value="결제금액"     ${(data.issuanceTarget||'')==='결제금액'?'selected':''}>결제금액</option>
             </select>
+          </div>
+          <!-- 최소결제금액 (결제금액 선택 시 노출) -->
+          <div id="min-payment-section" style="margin-bottom: 20px; display: ${(data.issuanceTarget||'')==='결제금액' ? 'block' : 'none'};">
+            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">최소결제금액 <span style="color:#DC2626;">*</span></label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="number" id="minPaymentAmount" value="${data.minPaymentAmount || ''}" min="0" placeholder="예: 50000"
+                style="flex: 1; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
+              <span style="font-size: 14px; color: #6B7280; white-space: nowrap;">원 이상 결제 시 발급</span>
+            </div>
+          </div>
+          <div style="display: none;">
           </div>
           <div id="coupon-course-link-section" style="margin-bottom: 20px; display: ${['교육과정','교육과정이수'].includes(data.issuanceTarget||'') ? 'block' : 'none'};">
             <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">교육과정</label>
@@ -2802,6 +3105,8 @@
       const val = document.getElementById('issuanceTarget').value;
       const section = document.getElementById('coupon-course-link-section');
       if (section) section.style.display = ['교육과정', '교육과정이수'].includes(val) ? 'block' : 'none';
+      const paySection = document.getElementById('min-payment-section');
+      if (paySection) paySection.style.display = val === '결제금액' ? 'block' : 'none';
     }
 
     function toggleCourseOption() {
@@ -2982,11 +3287,13 @@
         couponCodes,
         usageStatus,
         couponCodeUsage,
-        usageLimit:     useCode ? issuanceLimit : null,
+        usageLimit:     issuanceLimit,
         issuanceStartDate,
         issuanceEndDate,
         usedCount:      id ? (state.coupons.find(c => c.id === id)?.usedCount || 0) : 0,
         issuanceTarget: document.getElementById('issuanceTarget').value,
+        minPaymentAmount: document.getElementById('issuanceTarget').value === '결제금액'
+          ? (parseInt(document.getElementById('minPaymentAmount')?.value) || 0) : null,
         courseOption:   document.querySelector('input[name="courseOption"]:checked')?.value || '전체과정',
         linkedCourses:  state.couponModalLinkedCourses.slice(),
         linkedEventId:  null,
