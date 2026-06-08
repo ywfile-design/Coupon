@@ -2521,12 +2521,11 @@
       if (!idVal) {
         previewEl.innerHTML = '<span style="font-size:14px;color:#9CA3AF;font-family:sans-serif;font-weight:400;">쿠폰 ID 입력 시 자동 생성됩니다</span>';
       } else {
-        const unlimited = document.getElementById('unlimitedUsage')?.checked;
-        const count = unlimited ? null : (parseInt(document.getElementById('issueCount')?.value) || 1);
+        const count = parseInt(document.getElementById('issueCount')?.value) || 1;
         previewEl.innerHTML = `
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
             <span style="font-size:20px;font-weight:700;color:#0C4A6E;font-family:'Courier New',monospace;letter-spacing:2px;">${idVal}${suffix}</span>
-            <span style="font-size:12px;color:#1E40AF;background:#DBEAFE;padding:3px 10px;border-radius:12px;font-weight:600;">${unlimited ? '무제한 사용 가능' : count.toLocaleString() + '회 사용 가능'}</span>
+            <span style="font-size:12px;color:#1E40AF;background:#DBEAFE;padding:3px 10px;border-radius:12px;font-weight:600;">${count.toLocaleString()}회 사용 가능</span>
           </div>`;
       }
       if (badgeEl) badgeEl.style.display = 'none';
@@ -2595,12 +2594,6 @@
       state.couponModalLinkedCourses = (data.linkedCourses || []).slice();
       state.couponCourseSearchKeyword = '';
 
-      // 무제한 체크박스 초기 상태 반영 (모달 렌더 후)
-      setTimeout(() => {
-        const unlimited = document.getElementById('unlimitedUsage');
-        if (unlimited) toggleUnlimitedUsage();
-      }, 0);
-
       // 이벤트 옵션 생성
       const eventOptions = state.events.map(e => 
         `<option value="${e.id}" ${data.linkedEventId === e.id ? 'selected' : ''}>${e.name}</option>`
@@ -2665,16 +2658,11 @@
           <!-- 사용횟수 -->
           <div style="margin-bottom: 16px;">
             <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">사용횟수 <span style="color:#DC2626;">*</span></label>
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 10px;">
               <input type="number" id="issueCount" value="${data.usageLimit || 1}" min="1" max="99999"
                 style="width: 120px; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; text-align: center;"
                 oninput="updateIssueCount()">
               <span style="font-size: 14px; color: #6B7280;">회</span>
-              <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; color: #374151; cursor: pointer; padding: 8px 14px; border: 1px solid #D1D5DB; border-radius: 10px; background: #F8FAFC;">
-                <input type="checkbox" id="unlimitedUsage" ${!data.usageLimit ? 'checked' : ''}
-                  onchange="toggleUnlimitedUsage()"
-                  style="accent-color:#2563EB; width:15px; height:15px; cursor:pointer;"> 무제한
-              </label>
               <span style="font-size: 12px; color: #9CA3AF;">※ 동일 쿠폰번호를 입력 횟수만큼만 사용 가능</span>
             </div>
           </div>
@@ -2982,8 +2970,7 @@
         alert('발행 종료일은 시작일 이후여야 합니다.'); return;
       }
 
-      const unlimited     = document.getElementById('unlimitedUsage')?.checked;
-      const issuanceLimit = unlimited ? null : (parseInt(document.getElementById('issueCount')?.value) || 1);
+      const issuanceLimit = parseInt(document.getElementById('issueCount')?.value) || 1;
 
       const baseData = {
         name:           document.getElementById('name').value,
