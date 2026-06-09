@@ -344,13 +344,14 @@
                   <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">쿠폰디자인</th>
                   <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">메일</th>
                   <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">발급현황</th>
+                  <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">사용여부</th>
                   <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">관리</th>
                 </tr>
               </thead>
               <tbody>
                 ${filtered.map((c, i) => {
                   return `
-                  <tr style="border-top: 1px solid #F3F4F6;">
+                  <tr id="coupon-row-${c.id}" style="border-top: 1px solid #F3F4F6; transition: opacity 0.2s; opacity: ${c.isEnabled === false ? '0.4' : '1'}; pointer-events: ${c.isEnabled === false ? 'none' : 'auto'};">
                     <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${i + 1}</td>
                     <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${c.date}</td>
                     <td style="padding: 16px 14px; font-size: 13px; font-weight: 600; color: #0C4A6E; font-family: 'Courier New', monospace; letter-spacing: 1px;">${c.couponCode}</td>
@@ -418,6 +419,18 @@
                         if (s && today < s) return '<span style="padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">대기중</span>';
                         return '<span style="padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;">진행중</span>';
                       })()}
+                    </td>
+                    <td style="padding: 16px 14px; text-align: center;" onclick="event.stopPropagation()">
+                      <div style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;">
+                        <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer;">
+                          <input type="checkbox" ${c.isEnabled !== false ? 'checked' : ''} onchange="toggleCouponEnabled(${c.id}, this.checked)"
+                            style="opacity:0;width:0;height:0;position:absolute;">
+                          <span id="toggle-bg-${c.id}" style="position:absolute;inset:0;border-radius:26px;background:${c.isEnabled !== false ? '#2563EB' : '#D1D5DB'};transition:background 0.2s;">
+                            <span id="toggle-knob-${c.id}" style="position:absolute;top:3px;left:${c.isEnabled !== false ? '25px' : '3px'};width:20px;height:20px;background:#FFF;border-radius:50%;transition:left 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2);"></span>
+                          </span>
+                        </label>
+                        <span id="toggle-label-${c.id}" style="font-size:11px;font-weight:600;color:${c.isEnabled !== false ? '#2563EB' : '#9CA3AF'};">${c.isEnabled !== false ? '사용' : '사용안함'}</span>
+                      </div>
                     </td>
                     <td style="padding: 16px 14px; text-align: center;">
                       <button onclick="editCoupon(${c.id})" style="padding: 6px 12px; background: #FFF; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 13px; cursor: pointer; margin-right: 4px;">수정</button>
@@ -724,7 +737,7 @@
                 const daysRemaining = calculateDaysRemaining(c.validTo);
                 const isExpired = daysRemaining === '만료';
                 return `
-                  <tr style="border-top: 1px solid #F3F4F6;">
+                  <tr id="coupon-row-${c.id}" style="border-top: 1px solid #F3F4F6; ${c.isEnabled === false ? 'opacity:0.4;' : ''}">
                     <td style="padding: 16px 14px; font-size: 14px; color: #6B7280;">${i + 1}</td>
                     <td style="padding: 16px 14px; font-size: 14px; color: #374151;">${c.userId}</td>
                     <td style="padding: 16px 14px;">
@@ -2387,6 +2400,22 @@
       });
     }
     // ────────────────────────────────────────────────────────────────
+
+    // 쿠폰 사용여부 토글
+    function toggleCouponEnabled(couponId, enabled) {
+      const idx = state.coupons.findIndex(c => c.id === couponId);
+      if (idx !== -1) state.coupons[idx].isEnabled = enabled;
+
+      const bg    = document.getElementById(`toggle-bg-${couponId}`);
+      const knob  = document.getElementById(`toggle-knob-${couponId}`);
+      const label = document.getElementById(`toggle-label-${couponId}`);
+      const row   = document.getElementById(`coupon-row-${couponId}`);
+
+      if (bg)    bg.style.background = enabled ? '#2563EB' : '#D1D5DB';
+      if (knob)  knob.style.left     = enabled ? '25px'   : '3px';
+      if (label) { label.textContent = enabled ? '사용' : '사용안함'; label.style.color = enabled ? '#2563EB' : '#9CA3AF'; }
+      if (row)   row.style.opacity = enabled ? '1' : '0.4';
+    }
 
     // ─── 쿠폰 ⋮ 드롭다운 메뉴 ────────────────────────────────────────
     function toggleCouponMenu(id, event) {
