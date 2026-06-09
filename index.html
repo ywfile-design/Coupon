@@ -715,7 +715,7 @@
                 <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">사용일</th>
                 <th style="padding: 14px; text-align: left; font-size: 13px; font-weight: 600; color: #6B7280;">유효기간</th>
                 <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">기간연장</th>
-                <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">쿠폰적용</th>
+                <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">쿠폰사용</th>
                 <th style="padding: 14px; text-align: center; font-size: 13px; font-weight: 600; color: #6B7280;">사용여부</th>
               </tr>
             </thead>
@@ -3022,6 +3022,9 @@
               <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; color: #374151; cursor: pointer;">
                 <input type="radio" name="target" value="지정회원" ${data.target === '지정회원' ? 'checked' : ''} onchange="toggleUsageLimit()" style="accent-color:#2563EB;width:15px;height:15px;cursor:pointer;"> 지정회원
               </label>
+              <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; color: #374151; cursor: pointer;">
+                <input type="radio" name="target" value="비회원" ${data.target === '비회원' ? 'checked' : ''} onchange="toggleUsageLimit()" style="accent-color:#2563EB;width:15px;height:15px;cursor:pointer;"> 비회원
+              </label>
             </div>
           </div>
           <!-- 사용횟수 -->
@@ -3076,7 +3079,7 @@
             <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">쿠폰명</label>
             <input type="text" id="name" value="${data.name}" required style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
             <div>
               <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">할인유형</label>
               <select id="type" style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px; background: #FFF;">
@@ -3088,6 +3091,16 @@
               <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">할인값</label>
               <input type="number" id="value" value="${data.value}" required style="width: 100%; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
             </div>
+          </div>
+          <!-- 최대할인금액 -->
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px;">최대할인금액</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input type="number" id="maxDiscountAmount" value="${data.maxDiscountAmount || ''}" min="0" placeholder="미입력 시 할인금액 그대로 적용"
+                style="flex: 1; padding: 10px 14px; border: 1px solid #D1D5DB; border-radius: 10px; font-size: 14px;">
+              <span style="font-size: 14px; color: #6B7280; white-space: nowrap;">원</span>
+            </div>
+            <p style="font-size: 12px; color: #9CA3AF; margin-top: 6px;">※ 최대 할인 금액 설정 시, 할인율이 적용되더라도 설정하신 금액까지만 할인됩니다.</p>
           </div>
           <!-- 쿠폰발행기간 -->
           <div style="margin-bottom: 20px;">
@@ -3348,6 +3361,7 @@
         description:    '',
         type:           document.getElementById('type').value,
         value:          parseFloat(document.getElementById('value').value),
+        maxDiscountAmount: parseInt(document.getElementById('maxDiscountAmount')?.value) || null,
         validFrom, validTo, validDays, target,
         couponCode,
         couponCodes,
